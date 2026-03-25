@@ -1,14 +1,9 @@
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
+import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { Separator } from "@/components/ui/separator";
 import { updateProfile } from "@/features/profile/services/profile";
 import type { ProfileViewProps } from "@/types";
 
@@ -21,31 +16,41 @@ export function ProfileView({ profile, email }: ProfileViewProps) {
     .slice(0, 2);
 
   return (
-    <div className="space-y-6 max-w-lg">
+    <div className="space-y-8 max-w-lg">
       <div>
-        <h1 className="text-2xl font-bold">Mon profil</h1>
-        <p className="text-muted-foreground">Gérer tes informations</p>
+        <p className="text-sm font-medium text-muted-foreground uppercase tracking-widest mb-1">
+          Compte
+        </p>
+        <h1 className="text-3xl font-extrabold tracking-tight">Mon profil</h1>
+        <p className="text-muted-foreground mt-1">Gérer tes informations</p>
       </div>
 
-      <Card>
-        <CardHeader>
+      <Card className="border-border/60">
+        <CardHeader className="pb-4">
           <div className="flex items-center gap-4">
-            <Avatar className="size-16">
+            <Avatar className="size-18 ring-2 ring-primary/20">
               {profile.avatarUrl && (
                 <AvatarImage src={profile.avatarUrl} alt={profile.name} />
               )}
-              <AvatarFallback className="text-lg">{initials}</AvatarFallback>
+              <AvatarFallback className="text-xl font-bold bg-primary/15 text-primary">
+                {initials}
+              </AvatarFallback>
             </Avatar>
             <div>
-              <CardTitle>{profile.name}</CardTitle>
-              <CardDescription>{email}</CardDescription>
+              <p className="text-lg font-bold">{profile.name}</p>
+              <p className="text-sm text-muted-foreground">{email}</p>
             </div>
           </div>
         </CardHeader>
-        <CardContent>
-          <form action={updateProfile} className="space-y-4">
+
+        <Separator className="opacity-50" />
+
+        <CardContent className="pt-6">
+          <form action={updateProfile} className="space-y-5">
             <div className="space-y-2">
-              <Label htmlFor="name">Prénom / Nom</Label>
+              <Label htmlFor="name" className="text-sm font-semibold">
+                Prénom / Nom
+              </Label>
               <Input
                 id="name"
                 name="name"
@@ -53,31 +58,51 @@ export function ProfileView({ profile, email }: ProfileViewProps) {
                 required
               />
             </div>
+
             <div className="grid grid-cols-2 gap-4">
               <div className="space-y-2">
-                <Label htmlFor="weight">Poids (kg)</Label>
-                <Input
-                  id="weight"
-                  name="weight"
-                  type="number"
-                  step="0.1"
-                  defaultValue={profile.weight ?? ""}
-                  placeholder="70"
-                />
+                <Label htmlFor="weight" className="text-sm font-semibold">
+                  Poids
+                </Label>
+                <div className="relative">
+                  <Input
+                    id="weight"
+                    name="weight"
+                    type="number"
+                    step="0.1"
+                    defaultValue={profile.weight ?? ""}
+                    placeholder="70"
+                    className="pr-10"
+                  />
+                  <span className="absolute right-3 top-1/2 -translate-y-1/2 text-xs text-muted-foreground">
+                    kg
+                  </span>
+                </div>
               </div>
               <div className="space-y-2">
-                <Label htmlFor="height">Taille (cm)</Label>
-                <Input
-                  id="height"
-                  name="height"
-                  type="number"
-                  step="1"
-                  defaultValue={profile.height ?? ""}
-                  placeholder="175"
-                />
+                <Label htmlFor="height" className="text-sm font-semibold">
+                  Taille
+                </Label>
+                <div className="relative">
+                  <Input
+                    id="height"
+                    name="height"
+                    type="number"
+                    step="1"
+                    defaultValue={profile.height ?? ""}
+                    placeholder="175"
+                    className="pr-10"
+                  />
+                  <span className="absolute right-3 top-1/2 -translate-y-1/2 text-xs text-muted-foreground">
+                    cm
+                  </span>
+                </div>
               </div>
             </div>
-            <Button type="submit">Sauvegarder</Button>
+
+            <Button type="submit" className="w-full sm:w-auto">
+              Sauvegarder les modifications
+            </Button>
           </form>
         </CardContent>
       </Card>
