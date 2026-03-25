@@ -36,7 +36,9 @@ export function LoginView() {
             <Dumbbell className="size-7" />
           </div>
           <div>
-            <h1 className="text-2xl font-extrabold tracking-tight">FitForYou</h1>
+            <h1 className="text-2xl font-extrabold tracking-tight">
+              FitForYou
+            </h1>
             <p className="text-sm text-muted-foreground mt-1">
               Tracker tes séances de sport
             </p>
@@ -44,20 +46,20 @@ export function LoginView() {
         </div>
 
         <Card className="border-border/60">
-          <CardHeader className="pb-4">
-            <CardTitle className="text-xl">Connexion</CardTitle>
+          <CardHeader className="pb-2">
+            <CardTitle className="text-xl font-semibold font-sans">Connexion</CardTitle>
             <CardDescription>
               Accède à tes séances d&apos;entraînement
             </CardDescription>
           </CardHeader>
           <form action={handleSubmit}>
-            <CardContent className="space-y-4">
+            <CardContent className="space-y-2">
               {error && (
                 <p className="text-sm text-destructive bg-destructive/10 px-3 py-2.5 rounded-lg border border-destructive/20">
                   {error}
                 </p>
               )}
-              <div className="space-y-2">
+              <div className="space-y-1">
                 <Label htmlFor="email" className="text-sm font-semibold">
                   Email
                 </Label>
@@ -68,9 +70,10 @@ export function LoginView() {
                   placeholder="tu@exemple.com"
                   required
                   autoComplete="email"
+                  className="font-semibold font-sans"
                 />
               </div>
-              <div className="space-y-2">
+              <div className="space-y-1">
                 <Label htmlFor="password" className="text-sm font-semibold">
                   Mot de passe
                 </Label>
@@ -83,18 +86,24 @@ export function LoginView() {
                 />
               </div>
             </CardContent>
-            <CardFooter className="flex flex-col gap-4 pt-2">
-              <Button type="submit" className="w-full font-semibold" disabled={isPending}>
+            <CardFooter className="flex flex-col gap-4 pt-4">
+              <Button
+                type="submit"
+                className="w-full font-semibold py-5 cursor-pointer hover:bg-primary/80"
+                disabled={isPending}
+              >
                 {isPending ? "Connexion..." : "Se connecter"}
               </Button>
               <p className="text-sm text-muted-foreground text-center">
                 Pas encore de compte ?{" "}
-                <Link
-                  href="/signup"
-                  className="text-primary font-semibold underline-offset-4 hover:underline"
+                <Button
+                  variant="link"
+                  render={<Link href="/signup" />}
+                  nativeButton={false}
+                  className="px-0 h-auto font-semibold text-primary"
                 >
                   Créer un compte
-                </Link>
+                </Button>
               </p>
             </CardFooter>
           </form>

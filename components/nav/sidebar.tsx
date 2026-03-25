@@ -14,12 +14,12 @@ import {
   SidebarContent,
   SidebarGroup,
   SidebarGroupContent,
-  SidebarGroupLabel,
   SidebarHeader,
   SidebarMenu,
   SidebarMenuButton,
   SidebarMenuItem,
 } from "@/components/ui/sidebar";
+import { cn } from "@/lib/utils";
 
 const navItems = [
   { href: "/dashboard", label: "Tableau de bord", icon: LayoutDashboard },
@@ -54,9 +54,13 @@ export function AppSidebar() {
                     <SidebarMenuButton
                       render={<Link href={href} />}
                       isActive={isActive}
-                      tooltip={label}
                     >
-                      <Icon />
+                      <Icon
+                        className={cn({
+                          "size-5 text-primary": isActive,
+                          "size-5 text-muted-foreground": !isActive,
+                        })}
+                      />
                       <span>{label}</span>
                     </SidebarMenuButton>
                   </SidebarMenuItem>
