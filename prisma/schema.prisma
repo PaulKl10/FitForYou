@@ -1,0 +1,62 @@
+generator client {
+  provider = "prisma-client"
+  output   = "../app/generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+model Profile {
+  id        String   @id @default(cuid())
+  userId    String   @unique @map("user_id")
+  name      String
+  weight    Float?
+  height    Float?
+  avatarUrl String?  @map("avatar_url")
+  createdAt DateTime @default(now()) @map("created_at")
+
+  @@map("profiles")
+}
+
+model Exercise {
+  id             String   @id @default(cuid())
+  nameFr         String   @map("name_fr")
+  nameEn         String   @map("name_en")
+  bodyPart       String   @map("body_part")
+  targetMuscle   String   @map("target_muscle")
+  equipment      String
+  gifUrl         String?  @map("gif_url")
+  instructionsFr String?  @map("instructions_fr")
+
+  sets Set[]
+
+  @@map("exercises")
+}
+
+model Session {
+  id              String   @id @default(cuid())
+  userId          String   @map("user_id")
+  date            DateTime
+  durationMinutes Int?     @map("duration_minutes")
+  notes           String?
+  createdAt       DateTime @default(now()) @map("created_at")
+
+  sets Set[]
+
+  @@map("sessions")
+}
+
+model Set {
+  id         String   @id @default(cuid())
+  sessionId  String   @map("session_id")
+  exerciseId String   @map("exercise_id")
+  setNumber  Int      @map("set_number")
+  reps       Int?
+  weightKg   Float?   @map("weight_kg")
+
+  session  Session  @relation(fields: [sessionId], references: [id], onDelete: Cascade)
+  exercise Exercise @relation(fields: [exerciseId], references: [id])
+
+  @@map("sets")
+}
