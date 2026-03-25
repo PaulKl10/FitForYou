@@ -1,0 +1,39 @@
+---
+description: Patterns Supabase Auth SSR pour ce projet
+globs: lib/supabase/**,lib/actions/**,middleware.ts
+alwaysApply: false
+---
+
+# Supabase Auth — Patterns SSR
+
+## Clients disponibles
+
+- `lib/supabase/server.ts` → Server Components, Server Actions, Route Handlers
+- `lib/supabase/client.ts` → Client Components uniquement
+- `lib/supabase/middleware.ts` → Proxy Next.js (appelé depuis `proxy.ts`)
+
+## Récupérer l'utilisateur côté serveur
+
+```ts
+// ✅ Toujours utiliser getUser() (vérifie le JWT côté serveur)
+const supabase = await createClient()
+const { data: { user } } = await supabase.auth.getUser()
+
+// ❌ getSession() ne vérifie pas côté serveur
+```
+
+## Protection des routes
+
+Le proxy `proxy.ts` protège toutes les routes sauf `/login` et `/signup`.
+En Next.js 16, `middleware.ts` est **déprécié** → utiliser `proxy.ts` avec `export function proxy()`.
+Dans les layouts/pages dashboard, vérifier quand même :
+
+```ts
+const { data: { user } } = await supabase.auth.getUser()
+if (!user) redirect('/login')
+```
+
+## Cookies
+
+Ne jamais manipuler les cookies d'auth manuellement.
+Utiliser uniquement les méthodes `supabase.auth.*`.

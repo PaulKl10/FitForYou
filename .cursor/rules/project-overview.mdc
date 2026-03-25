@@ -1,0 +1,60 @@
+---
+description: FitForYou project overview and architecture
+alwaysApply: true
+---
+
+# FitForYou — Architecture
+
+App web de tracking de séances de gym. Stack : Next.js 16 (App Router), Supabase Auth, Prisma 7 + PostgreSQL, Tailwind CSS v4, shadcn/ui, TypeScript.
+
+## Structure
+
+```
+app/              Routes Next.js — pages MINCES (import Screen ou View, c'est tout)
+  (auth)/         Login, Signup
+  (dashboard)/    Dashboard, Exercises, Sessions, Profile
+
+screens/          Orchestration : data fetching serveur + assemblage des Views
+  DashboardScreen, ExercisesScreen, SessionsScreen, SessionDetailScreen, ProfileScreen
+
+features/*/       Par domaine métier
+  auth/
+    View/         LoginView, SignupView (composants "use client")
+    services/     auth.ts — Server Actions (login, signup, logout)
+  dashboard/View/ DashboardView
+  exercises/View/ ExercisesView
+  sessions/View/  SessionsView, SessionDetailView
+  profile/
+    View/         ProfileView
+    services/     profile.ts — Server Action updateProfile
+
+components/       UI transverse
+  nav/            Sidebar, MobileNav, UserMenu
+  ui/             shadcn/ui components
+
+hooks/            Hooks partagés (vide pour l'instant)
+providers/        Providers React (vide pour l'instant)
+
+lib/
+  supabase/       server.ts, client.ts, middleware.ts
+  prisma.ts       Singleton PrismaClient avec adapter PrismaPg
+
+types/            Types TypeScript globaux — ViewProps, Prisma GetPayload
+```
+
+## Règles d'architecture
+
+- **`app/` pages** = 3-5 lignes max — elles importent et rendent un Screen ou une View
+- **`screens/`** = Server Components qui fetchent les données et passent des props typées aux Views
+- **`features/*/View/`** = composants de présentation (peuvent être client ou serveur)
+- **`features/*/services/`** = Server Actions (`'use server'`)
+- **Types** dans `types/index.ts` en utilisant `GetPayload` de Prisma 7
+
+## Variables d'environnement
+
+```
+DATABASE_URL                   # Pooler Supabase (pgbouncer)
+DIRECT_URL                     # Connexion directe (migrations)
+NEXT_PUBLIC_SUPABASE_URL
+NEXT_PUBLIC_SUPABASE_ANON_KEY
+```

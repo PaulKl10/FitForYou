@@ -1,0 +1,76 @@
+---
+description: Conventions UI shadcn/Tailwind v4 pour FitForYou
+globs: app/**/*.tsx,components/**/*.tsx
+alwaysApply: false
+---
+
+# UI — Conventions FitForYou
+
+## Stack UI
+
+- **shadcn/ui** pour les composants (Button, Card, Input, etc.)
+- **Tailwind CSS v4** (config CSS-first, pas de tailwind.config.js)
+- **lucide-react** pour les icônes
+
+## Import des composants
+
+```tsx
+import { Button } from "@/components/ui/button"
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
+```
+
+## Button as Link (Base UI — PAS de `asChild`)
+
+shadcn utilise `@base-ui/react` qui utilise `render` au lieu de `asChild` :
+
+```tsx
+// ✅ CORRECT — nativeButton={false} obligatoire avec un élément non-<button>
+<Button render={<Link href="/dashboard" />} nativeButton={false}>
+  Dashboard
+</Button>
+
+// ❌ INCORRECT — asChild n'existe pas
+<Button asChild>
+  <Link href="/dashboard">Dashboard</Link>
+</Button>
+
+// ❌ INCORRECT — manque nativeButton={false}, Base UI lance un warning
+<Button render={<Link href="/dashboard" />}>
+  Dashboard
+</Button>
+```
+
+Même pattern pour `DropdownMenuItem` :
+```tsx
+<DropdownMenuItem render={<Link href="/profile" />}>
+  Mon profil
+</DropdownMenuItem>
+```
+
+## Layout dashboard
+
+- Sidebar desktop (`components/nav/sidebar.tsx`)
+- Nav bottom mobile (`components/nav/mobile-nav.tsx`)
+- Header avec `UserMenu` (`components/nav/user-menu.tsx`)
+- `pb-20 md:pb-6` sur le `<main>` pour éviter que la nav mobile chevauche le contenu
+
+## Patterns page standard
+
+```tsx
+export default async function Page() {
+  return (
+    <div className="space-y-6">
+      <div>
+        <h1 className="text-2xl font-bold">Titre</h1>
+        <p className="text-muted-foreground">Sous-titre</p>
+      </div>
+      {/* contenu */}
+    </div>
+  )
+}
+```
+
+## Tailwind v4
+
+- Pas de fichier `tailwind.config.js` — config dans `globals.css` avec `@theme`
+- Les variables CSS shadcn sont déclarées dans `globals.css`

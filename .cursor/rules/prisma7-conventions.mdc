@@ -1,0 +1,60 @@
+---
+description: Conventions Prisma 7 pour ce projet
+globs: prisma/**,lib/prisma.ts,lib/actions/**
+alwaysApply: false
+---
+
+# Prisma 7 — Conventions
+
+## Breaking changes vs Prisma 5/6
+
+- Les URLs de connexion sont dans `prisma.config.ts`, **pas** dans `schema.prisma`
+- Le generator utilise `provider = "prisma-client"` (pas `prisma-client-js`)
+- Le client est généré dans `app/generated/prisma`
+
+
+## Singleton (lib/prisma.ts)
+
+Prisma 7 nécessite un **adapter** explicite — plus de lecture auto de DATABASE_URL :
+
+```ts
+import { PrismaClient } from "@/app/generated/prisma/client"
+import { PrismaPg } from "@prisma/adapter-pg"
+
+function createPrismaClient() {
+  const adapter = new PrismaPg({ connectionString: process.env.DATABASE_URL! })
+  return new PrismaClient({ adapter })
+}
+const globalForPrisma = globalThis as unknown as { prisma: PrismaClient | undefined }
+export const prisma = globalForPrisma.prisma ?? createPrismaClient()
+if (process.env.NODE_ENV !== "production") globalForPrisma.prisma = prisma
+```
+
+## Import du client
+
+```ts
+// ✅ CORRECT
+import { PrismaClient } from "@/app/generated/prisma/client"
+
+// ❌ INCORRECT
+import { PrismaClient } from "@prisma/client"
+import { PrismaClient } from "@/app/generated/prisma"  // pas d'index
+```
+
+## Migrations
+
+```bash
+pnpm exec prisma migrate dev    # Nouvelle migration
+pnpm exec prisma generate       # Régénérer le client
+pnpm exec prisma db push        # Push schema sans migration
+```
+
+## Schema
+
+Le datasource ne contient pas d'URL :
+```prisma
+datasource db {
+  provider = "postgresql"
+  # pas d'url ici !
+}
+```

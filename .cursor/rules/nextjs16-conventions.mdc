@@ -1,0 +1,49 @@
+---
+description: Next.js 16 App Router conventions spécifiques à ce projet
+globs: app/**/*.tsx,app/**/*.ts
+alwaysApply: false
+---
+
+# Next.js 16 — Conventions importantes
+
+## params et searchParams sont des Promises
+
+```tsx
+// ✅ CORRECT — Next.js 16
+export default async function Page(props: PageProps<'/blog/[slug]'>) {
+  const { slug } = await props.params
+  const { q } = await props.searchParams
+}
+
+// ❌ INCORRECT — ancienne API
+export default async function Page({ params, searchParams }) {
+  const { slug } = params  // pas de await !
+}
+```
+
+## PageProps et LayoutProps helpers (globaux, pas d'import)
+
+```tsx
+// Utiliser le helper de type global
+export default async function Page(props: PageProps<'/sessions/[id]'>) {}
+export default function Layout(props: LayoutProps<'/dashboard'>) {}
+```
+
+## Server Actions
+
+```tsx
+// Toujours 'use server' en tête de fichier ou de fonction
+'use server'
+export async function myAction(formData: FormData) {
+  // Vérifier l'auth en premier
+  const supabase = await createClient()
+  const { data: { user } } = await supabase.auth.getUser()
+  if (!user) throw new Error('Unauthorized')
+}
+```
+
+## Routing
+
+- Route groups `(auth)` et `(dashboard)` pour séparer les layouts
+- `redirect()` vient de `next/navigation`
+- `notFound()` pour les ressources manquantes
