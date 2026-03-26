@@ -46,7 +46,11 @@ export function ProfileView({ profile, email }: ProfileViewProps) {
         <Separator className="opacity-50" />
 
         <CardContent className="pt-6">
-          <form action={updateProfile} className="space-y-5">
+          <form
+            key={`${profile.name}-${profile.weight}-${profile.height}`}
+            action={updateProfile}
+            className="space-y-5"
+          >
             <div className="space-y-2">
               <Label htmlFor="name" className="text-sm font-semibold">
                 Prénom / Nom
@@ -100,7 +104,7 @@ export function ProfileView({ profile, email }: ProfileViewProps) {
               </div>
             </div>
 
-            <Button type="submit" className="w-full sm:w-auto">
+            <Button type="submit" className="w-full">
               Sauvegarder les modifications
             </Button>
           </form>

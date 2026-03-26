@@ -2,7 +2,13 @@ import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Plus, Dumbbell, TrendingUp, Calendar, ChevronRight } from "lucide-react";
+import {
+  Plus,
+  Dumbbell,
+  TrendingUp,
+  Calendar,
+  ChevronRight,
+} from "lucide-react";
 import { formatDistanceToNow } from "date-fns";
 import { fr } from "date-fns/locale";
 import type { DashboardViewProps } from "@/types";
@@ -45,8 +51,12 @@ export function DashboardView({
             </div>
           </CardHeader>
           <CardContent>
-            <div className="text-3xl font-extrabold">{recentSessions.length}</div>
-            <p className="text-xs text-muted-foreground mt-0.5">entraînements</p>
+            <div className="text-3xl font-extrabold">
+              {recentSessions.length}
+            </div>
+            <p className="text-xs text-muted-foreground mt-0.5">
+              entraînements
+            </p>
           </CardContent>
         </Card>
 
@@ -63,7 +73,9 @@ export function DashboardView({
           </CardHeader>
           <CardContent>
             <div className="text-3xl font-extrabold">{totalSets}</div>
-            <p className="text-xs text-muted-foreground mt-0.5">séries au total</p>
+            <p className="text-xs text-muted-foreground mt-0.5">
+              séries au total
+            </p>
           </CardContent>
         </Card>
 
@@ -115,11 +127,16 @@ export function DashboardView({
               <div className="flex items-center justify-center size-14 rounded-2xl bg-muted mb-4">
                 <Dumbbell className="size-7 text-muted-foreground" />
               </div>
-              <p className="font-semibold mb-1">Aucune séance pour l&apos;instant</p>
+              <p className="font-semibold mb-1">
+                Aucune séance pour l&apos;instant
+              </p>
               <p className="text-sm text-muted-foreground mb-5">
                 Lance ta première séance d&apos;entraînement !
               </p>
-              <Button render={<Link href="/sessions/new" />} nativeButton={false}>
+              <Button
+                render={<Link href="/sessions/new" />}
+                nativeButton={false}
+              >
                 <Plus className="size-4" />
                 Commencer une séance
               </Button>

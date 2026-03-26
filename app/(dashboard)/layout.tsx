@@ -11,6 +11,7 @@ import {
 } from "@/components/ui/sidebar";
 import { Separator } from "@/components/ui/separator";
 import { MobileNav } from "@/components/nav/mobile-nav";
+import { ModeToggle } from "@/components/nav/mode-toggle";
 import { ReactNode } from "react";
 
 export default async function DashboardLayout({
@@ -38,10 +39,11 @@ export default async function DashboardLayout({
         <header className="sticky top-0 z-40 flex h-14 shrink-0 items-center gap-2 border-b border-border/60 bg-background/80 backdrop-blur-md">
           <div className="flex items-center gap-2 px-4">
             <SidebarTrigger className="-ml-1" />
-            <Separator orientation="vertical" className="h-4" />
+            <Separator orientation="vertical" className="h-7" />
           </div>
           <div className="flex-1" />
-          <div className="px-4">
+          <div className="flex items-center gap-3 px-4">
+            <ModeToggle />
             <UserMenu
               name={profile.name}
               email={user.email ?? ""}
