@@ -40,7 +40,7 @@ export function DashboardView({
 
       <div className="grid gap-4 sm:grid-cols-3">
         <Card className="border-border/60">
-          <CardHeader className="pb-2">
+          <CardHeader>
             <div className="flex items-center justify-between">
               <CardTitle className="text-sm font-medium text-muted-foreground">
                 Séances totales
@@ -61,7 +61,7 @@ export function DashboardView({
         </Card>
 
         <Card className="border-border/60">
-          <CardHeader className="pb-2">
+          <CardHeader>
             <div className="flex items-center justify-between">
               <CardTitle className="text-sm font-medium text-muted-foreground">
                 Séries effectuées
@@ -80,7 +80,7 @@ export function DashboardView({
         </Card>
 
         <Card className="border-border/60">
-          <CardHeader className="pb-2">
+          <CardHeader>
             <div className="flex items-center justify-between">
               <CardTitle className="text-sm font-medium text-muted-foreground">
                 Dernière séance

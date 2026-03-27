@@ -16,7 +16,8 @@ model Profile {
   avatarUrl String?  @map("avatar_url")
   createdAt DateTime @default(now()) @map("created_at")
 
-  weightEntries WeightEntry[]
+  weightEntries     WeightEntry[]
+  favoriteExercises FavoriteExercise[]
 
   @@map("profiles")
 }
@@ -67,10 +68,23 @@ model Exercise {
   gifUrl         String? @map("gif_url")
   instructionsFr String? @map("instructions_fr")
 
-  muscles ExerciseMuscle[]
-  sets    Set[]
+  muscles     ExerciseMuscle[]
+  sets        Set[]
+  favoritedBy FavoriteExercise[]
 
   @@map("exercises")
+}
+
+model FavoriteExercise {
+  profileId  String   @map("profile_id")
+  exerciseId String   @map("exercise_id")
+  createdAt  DateTime @default(now()) @map("created_at")
+
+  profile  Profile  @relation(fields: [profileId], references: [id], onDelete: Cascade)
+  exercise Exercise @relation(fields: [exerciseId], references: [id], onDelete: Cascade)
+
+  @@id([profileId, exerciseId])
+  @@map("favorite_exercises")
 }
 
 model Session {

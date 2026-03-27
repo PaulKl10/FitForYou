@@ -6,6 +6,7 @@ interface ExercisesPageProps {
     equipment?: string | string[];
     q?: string | string[];
     page?: string | string[];
+    favoritesOnly?: string;
   }>;
 }
 
@@ -28,6 +29,7 @@ export default async function ExercisesPage({ searchParams }: ExercisesPageProps
     muscle: toArray(params.muscle),
     equipment: toArray(params.equipment),
     page: toPositiveInt(first(params.page)),
+    favoritesOnly: params.favoritesOnly === "true",
   };
 
   return <ExercisesScreen filters={filters} />;

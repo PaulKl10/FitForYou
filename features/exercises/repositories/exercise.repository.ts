@@ -5,11 +5,14 @@ interface ExerciseFilters {
   muscle?: string[];
   equipment?: string[];
   page?: number;
+  favoritesOnly?: boolean;
 }
 
-function buildWhere(filters: ExerciseFilters) {
-  const { q, muscle, equipment } = filters;
+function buildWhere(filters: ExerciseFilters, favoriteIds: string[]) {
+  const { q, muscle, equipment, favoritesOnly } = filters;
   return {
+    ...(favoritesOnly && favoriteIds.length > 0 && { id: { in: favoriteIds } }),
+    ...(favoritesOnly && favoriteIds.length === 0 && { id: "none" }),
     ...(muscle && muscle.length > 0 && { targetMuscle: { in: muscle } }),
     ...(equipment && equipment.length > 0 && { equipment: { in: equipment } }),
     ...(q && {
@@ -22,8 +25,12 @@ function buildWhere(filters: ExerciseFilters) {
   };
 }
 
-export async function getExercisePage(filters: ExerciseFilters, pageSize = 24) {
-  const where = buildWhere(filters);
+export async function getExercisePage(
+  filters: ExerciseFilters,
+  favoriteIds: string[] = [],
+  pageSize = 24,
+) {
+  const where = buildWhere(filters, favoriteIds);
   const currentPage = filters.page ?? 1;
 
   const total = await prisma.exercise.count({ where });
@@ -58,4 +65,12 @@ export async function getExerciseFilterOptions() {
     muscles: musclesRaw.map((r) => r.targetMuscle),
     equipments: equipmentsRaw.map((r) => r.equipment).filter((e): e is string => e !== null),
   };
+}
+
+export async function getFavoriteIds(userId: string): Promise<string[]> {
+  const profile = await prisma.profile.findUnique({
+    where: { userId },
+    select: { favoriteExercises: { select: { exerciseId: true } } },
+  });
+  return profile?.favoriteExercises.map((f) => f.exerciseId) ?? [];
 }

@@ -1,9 +1,7 @@
-import { Badge } from "@/components/ui/badge";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { ExercisesFilters } from "@/features/exercises/components/ExercisesFilters";
-import { ExercisesViewProps } from "@/types";
 import { Search } from "lucide-react";
-import Image from "next/image";
+import { ExercisesFilters } from "@/features/exercises/components/ExercisesFilters";
+import { ExerciseCard } from "@/features/exercises/components/ExerciseCard";
+import { ExercisesViewProps } from "@/types";
 
 export function ExercisesView({
   exercises,
@@ -13,7 +11,10 @@ export function ExercisesView({
   allMuscles,
   allEquipments,
   filters,
+  favoriteIds,
 }: ExercisesViewProps) {
+  const favoriteSet = new Set(favoriteIds);
+
   return (
     <div className="space-y-8">
       <div>
@@ -40,54 +41,19 @@ export function ExercisesView({
           <Search className="size-10 text-muted-foreground mb-3" />
           <p className="font-semibold mb-1">Aucun exercice trouvé</p>
           <p className="text-sm text-muted-foreground">
-            Essaie d&apos;autres filtres
+            {filters.favoritesOnly
+              ? "Tu n'as pas encore de favoris"
+              : "Essaie d'autres filtres"}
           </p>
         </div>
       ) : (
-        <div className="grid gap-4 grid-cols-2 lg:grid-cols-5">
-          {exercises.map((exercise: ExercisesViewProps["exercises"][0]) => (
-            <div
+        <div className="grid gap-4 grid-cols-2 lg:grid-cols-4">
+          {exercises.map((exercise) => (
+            <ExerciseCard
               key={exercise.id}
-              className="rounded-xl bg-linear-to-br from-transparent via-background to-gray-500 p-px transition-transform hover:-translate-y-0.5"
-            >
-              <Card className="group h-full ring-0">
-                {exercise.gifUrl && (
-                  <div className="relative aspect-square bg-muted">
-                    <Image
-                      src={exercise.gifUrl}
-                      alt={exercise.nameFr}
-                      fill
-                      unoptimized
-                      className="object-cover group-hover:scale-105 transition-transform duration-300"
-                    />
-                  </div>
-                )}
-                <CardHeader className="pb-2">
-                  <CardTitle className="text-base leading-tight">
-                    {exercise.nameFr}
-                  </CardTitle>
-                  <p className="text-xs text-muted-foreground">
-                    {exercise.nameEn}
-                  </p>
-                </CardHeader>
-                <CardContent>
-                  <div className="flex flex-wrap gap-1.5">
-                    <Badge className="text-xs bg-primary/15 text-primary border-0">
-                      {exercise.bodyPart}
-                    </Badge>
-                    <Badge className="text-xs bg-accent/15 text-accent border-0">
-                      {exercise.targetMuscle}
-                    </Badge>
-                    <Badge
-                      variant="outline"
-                      className="text-xs border-border/60"
-                    >
-                      {exercise.equipment}
-                    </Badge>
-                  </div>
-                </CardContent>
-              </Card>
-            </div>
+              exercise={exercise}
+              isFavorite={favoriteSet.has(exercise.id)}
+            />
           ))}
         </div>
       )}

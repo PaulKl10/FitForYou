@@ -1,4 +1,9 @@
-import { getExercisePage, getExerciseFilterOptions } from "@/features/exercises/repositories/exercise.repository";
+import { createClient } from "@/lib/supabase/server";
+import {
+  getExercisePage,
+  getExerciseFilterOptions,
+  getFavoriteIds,
+} from "@/features/exercises/repositories/exercise.repository";
 import { ExercisesView } from "@/features/exercises/View/ExercisesView";
 
 interface ExercisesScreenProps {
@@ -7,12 +12,23 @@ interface ExercisesScreenProps {
     muscle?: string[];
     equipment?: string[];
     page?: number;
+    favoritesOnly?: boolean;
   };
 }
 
 export async function ExercisesScreen({ filters }: ExercisesScreenProps) {
+  const supabase = await createClient();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+
+  const favoriteIds = user ? await getFavoriteIds(user.id) : [];
+
   const [{ exercises, totalExercises, totalPages, currentPage }, { muscles, equipments }] =
-    await Promise.all([getExercisePage(filters), getExerciseFilterOptions()]);
+    await Promise.all([
+      getExercisePage(filters, favoriteIds),
+      getExerciseFilterOptions(),
+    ]);
 
   return (
     <ExercisesView
@@ -23,6 +39,7 @@ export async function ExercisesScreen({ filters }: ExercisesScreenProps) {
       allMuscles={muscles}
       allEquipments={equipments}
       filters={{ ...filters, page: currentPage }}
+      favoriteIds={favoriteIds}
     />
   );
 }

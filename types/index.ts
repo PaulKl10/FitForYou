@@ -53,7 +53,9 @@ export interface ExercisesViewProps {
     muscle?: string[];
     equipment?: string[];
     page?: number;
+    favoritesOnly?: boolean;
   };
+  favoriteIds: string[];
 }
 
 export interface SessionsViewProps {

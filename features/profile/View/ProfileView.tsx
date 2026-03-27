@@ -56,7 +56,7 @@ export function ProfileView({
       <div className="flex flex-col md:flex-row gap-8">
         {/* Section 1 — Informations */}
         <Card className="border-border/60 w-full h-fit">
-          <CardHeader className="pt-4">
+          <CardHeader>
             <ProfileCardHeader
               profile={profile}
               email={email}
@@ -86,7 +86,7 @@ export function ProfileView({
           <div className="space-y-4 w-full">
             {weightHistory.length > 0 && (
               <Card className="border-border/60">
-                <CardContent className="pt-4">
+                <CardContent>
                   <p className="text-sm font-semibold mb-3">
                     Évolution du poids
                   </p>
