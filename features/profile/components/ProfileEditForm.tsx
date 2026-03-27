@@ -1,7 +1,7 @@
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import type { Profile } from "@/types";
+import type { Profile } from "@/features/profile/types";
 
 interface ProfileEditFormProps {
   profile: Profile;

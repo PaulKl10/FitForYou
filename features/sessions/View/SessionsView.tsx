@@ -3,7 +3,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Plus, Dumbbell, Clock, ChevronRight } from "lucide-react";
-import type { SessionsViewProps } from "@/types";
+import type { SessionsViewProps } from "@/features/sessions/types";
 
 export function SessionsView({ sessions }: SessionsViewProps) {
   return (

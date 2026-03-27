@@ -1,6 +1,6 @@
 import { PrismaClient } from "../app/generated/prisma/client";
 import { PrismaPg } from "@prisma/adapter-pg";
-import exercisesData from "../lib/exercises.json";
+import exercisesData from "../lib/exercises-fr-corrected.json";
 
 interface RawExercise {
   id: string;

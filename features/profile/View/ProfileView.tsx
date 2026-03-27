@@ -9,7 +9,7 @@ import { ProfileReadOnly } from "@/features/profile/components/ProfileReadOnly";
 import { ProfileEditForm } from "@/features/profile/components/ProfileEditForm";
 import { WeightChart } from "@/features/profile/components/WeightChart";
 import { BmiSection } from "@/features/profile/components/BmiSection";
-import type { ProfileViewProps } from "@/types";
+import type { ProfileViewProps } from "@/features/profile/types";
 
 export function ProfileView({
   profile,

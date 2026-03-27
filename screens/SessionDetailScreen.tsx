@@ -2,7 +2,7 @@ import { notFound, redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 import { getSessionById } from "@/features/sessions/repositories/session.repository";
 import { SessionDetailView } from "@/features/sessions/View/SessionDetailView";
-import type { ExerciseGroup } from "@/types";
+import type { ExerciseGroup } from "@/features/sessions/types";
 
 interface SessionDetailScreenProps {
   id: string;

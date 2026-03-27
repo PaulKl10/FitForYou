@@ -3,7 +3,7 @@ import Image from "next/image";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import { AvatarPickerModal } from "@/features/profile/components/AvatarPickerModal";
-import type { Profile } from "@/types";
+import type { Profile } from "@/features/profile/types";
 
 interface ProfileCardHeaderProps {
   profile: Profile;

@@ -1,4 +1,4 @@
-import type { Profile } from "@/types";
+import type { Profile } from "@/features/profile/types";
 
 interface ProfileReadOnlyProps {
   profile: Profile;

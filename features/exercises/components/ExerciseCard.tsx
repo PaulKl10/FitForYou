@@ -1,51 +1,33 @@
-"use client";
-
-import { useState, useTransition } from "react";
+import Link from "next/link";
 import Image from "next/image";
-import { Heart } from "lucide-react";
-import { cn } from "@/lib/utils";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { toggleFavorite } from "@/features/exercises/services/favorites";
-import type { Exercise } from "@/types";
+import { FavoriteButton } from "@/features/exercises/components/FavoriteButton";
+import type { Exercise } from "@/features/exercises/types";
 
 interface ExerciseCardProps {
   exercise: Exercise;
   isFavorite: boolean;
 }
 
-export function ExerciseCard({ exercise, isFavorite: initialFavorite }: ExerciseCardProps) {
-  const [isFavorite, setIsFavorite] = useState(initialFavorite);
-  const [isPending, startTransition] = useTransition();
-
-  function handleToggle(e: React.MouseEvent) {
-    e.stopPropagation();
-    setIsFavorite((prev) => !prev);
-    startTransition(async () => {
-      await toggleFavorite(exercise.id);
-    });
-  }
-
+export function ExerciseCard({ exercise, isFavorite }: ExerciseCardProps) {
   return (
     <div className="rounded-xl bg-linear-to-br from-transparent via-background to-gray-500 p-px transition-transform hover:-translate-y-0.5">
       <Card className="group h-full ring-0 relative pt-0">
-        <button
-          type="button"
-          onClick={handleToggle}
-          disabled={isPending}
-          aria-label={isFavorite ? "Retirer des favoris" : "Ajouter aux favoris"}
-          className="absolute top-2 right-2 z-10 rounded-full p-1.5 bg-background/70 backdrop-blur-sm hover:bg-background transition-colors"
-        >
-          <Heart
-            className={cn(
-              "size-4 transition-colors",
-              isFavorite ? "fill-red-500 text-red-500" : "text-muted-foreground",
-            )}
-          />
-        </button>
+        {/* Lien étendu sur toute la card */}
+        <Link
+          href={`/exercises/${exercise.id}`}
+          className="absolute inset-0 z-0 rounded-xl"
+          aria-label={exercise.nameFr}
+        />
+
+        {/* Bouton favori au-dessus du lien */}
+        <div className="absolute top-2 right-2 z-10">
+          <FavoriteButton exerciseId={exercise.id} isFavorite={isFavorite} size="sm" />
+        </div>
 
         {exercise.gifUrl && (
-          <div className="relative aspect-square bg-muted overflow-hidden">
+          <div className="relative aspect-square bg-muted overflow-hidden rounded-t-xl">
             <Image
               src={exercise.gifUrl}
               alt={exercise.nameFr}

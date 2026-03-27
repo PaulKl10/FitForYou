@@ -67,6 +67,18 @@ export async function getExerciseFilterOptions() {
   };
 }
 
+export async function getExerciseById(id: string) {
+  return prisma.exercise.findUnique({
+    where: { id },
+    include: {
+      muscles: {
+        include: { muscle: true },
+        orderBy: { isPrimary: "desc" },
+      },
+    },
+  });
+}
+
 export async function getFavoriteIds(userId: string): Promise<string[]> {
   const profile = await prisma.profile.findUnique({
     where: { userId },

@@ -11,7 +11,7 @@ import {
   ResponsiveContainer,
   CartesianGrid,
 } from "recharts";
-import type { WeightEntry } from "@/types";
+import type { WeightEntry } from "@/features/profile/types";
 
 interface WeightChartProps {
   weightHistory: WeightEntry[];

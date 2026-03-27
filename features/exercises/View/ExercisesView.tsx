@@ -1,7 +1,7 @@
 import { Search } from "lucide-react";
 import { ExercisesFilters } from "@/features/exercises/components/ExercisesFilters";
 import { ExerciseCard } from "@/features/exercises/components/ExerciseCard";
-import { ExercisesViewProps } from "@/types";
+import type { ExercisesViewProps } from "@/features/exercises/types";
 
 export function ExercisesView({
   exercises,

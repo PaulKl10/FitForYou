@@ -2,7 +2,7 @@ import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { ArrowLeft, Clock, StickyNote, Dumbbell } from "lucide-react";
-import type { SessionDetailViewProps } from "@/types";
+import type { SessionDetailViewProps } from "@/features/sessions/types";
 
 export function SessionDetailView({ session, setsByExercise }: SessionDetailViewProps) {
   const exerciseGroups = Object.values(setsByExercise);

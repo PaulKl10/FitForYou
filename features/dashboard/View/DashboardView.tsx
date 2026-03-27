@@ -11,7 +11,7 @@ import {
 } from "lucide-react";
 import { formatDistanceToNow } from "date-fns";
 import { fr } from "date-fns/locale";
-import type { DashboardViewProps } from "@/types";
+import type { DashboardViewProps } from "@/features/dashboard/types";
 
 export function DashboardView({
   profileName,
