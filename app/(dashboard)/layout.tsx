@@ -2,16 +2,10 @@ import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 import { getProfile } from "@/features/profile/repositories/profile.repository";
 import { AppSidebar } from "@/components/nav/sidebar";
-import { UserMenu } from "@/components/nav/user-menu";
+import { Header } from "@/components/nav/header";
 import { Toaster } from "@/components/ui/sonner";
-import {
-  SidebarInset,
-  SidebarProvider,
-  SidebarTrigger,
-} from "@/components/ui/sidebar";
-import { Separator } from "@/components/ui/separator";
+import { SidebarInset, SidebarProvider } from "@/components/ui/sidebar";
 import { MobileNav } from "@/components/nav/mobile-nav";
-import { ModeToggle } from "@/components/nav/mode-toggle";
 import { ReactNode } from "react";
 
 export default async function DashboardLayout({
@@ -34,21 +28,11 @@ export default async function DashboardLayout({
     <SidebarProvider>
       <AppSidebar />
       <SidebarInset>
-        <header className="sticky top-0 z-40 flex h-14 shrink-0 items-center gap-2 border-b border-border/60 bg-background/80 backdrop-blur-md">
-          <div className="flex items-center gap-2 px-4">
-            <SidebarTrigger className="-ml-1" />
-            <Separator orientation="vertical" className="h-7" />
-          </div>
-          <div className="flex-1" />
-          <div className="flex items-center gap-3 px-4">
-            <ModeToggle />
-            <UserMenu
-              name={profile.name}
-              email={user.email ?? ""}
-              avatarUrl={profile.avatarUrl}
-            />
-          </div>
-        </header>
+        <Header
+          name={profile.name}
+          email={user.email ?? ""}
+          avatarUrl={profile.avatarUrl}
+        />
         <main className="flex-1 px-4 py-6 md:px-6">{children}</main>
         <MobileNav />
       </SidebarInset>

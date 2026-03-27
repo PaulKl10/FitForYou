@@ -1,10 +1,12 @@
 import type { ProfileGetPayload } from "@/app/generated/prisma/models/Profile";
 import type { ExerciseGetPayload } from "@/app/generated/prisma/models/Exercise";
 import type { SessionGetPayload } from "@/app/generated/prisma/models/Session";
+import type { WeightEntryGetPayload } from "@/app/generated/prisma/models/WeightEntry";
 
 // ─── Prisma model types ────────────────────────────────────────────────────
 
 export type Profile = ProfileGetPayload<{}>;
+export type WeightEntry = WeightEntryGetPayload<{}>;
 export type Exercise = ExerciseGetPayload<{}>;
 
 export type SessionWithSets = SessionGetPayload<{
@@ -66,4 +68,5 @@ export interface SessionDetailViewProps {
 export interface ProfileViewProps {
   profile: Profile;
   email: string;
+  weightHistory: WeightEntry[];
 }

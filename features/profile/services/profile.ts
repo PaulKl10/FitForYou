@@ -15,11 +15,18 @@ export async function updateProfile(formData: FormData) {
   const name = formData.get("name") as string;
   const weight = formData.get("weight") ? Number(formData.get("weight")) : null;
   const height = formData.get("height") ? Number(formData.get("height")) : null;
+  const avatarUrl = (formData.get("avatarUrl") as string) || null;
 
-  await prisma.profile.update({
+  const updatedProfile = await prisma.profile.update({
     where: { userId: user.id },
-    data: { name, weight, height },
+    data: { name, weight, height, avatarUrl },
   });
+
+  if (weight !== null) {
+    await prisma.weightEntry.create({
+      data: { profileId: updatedProfile.id, weight },
+    });
+  }
 
   revalidatePath("/profile");
 }

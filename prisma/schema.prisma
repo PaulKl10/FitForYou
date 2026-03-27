@@ -16,7 +16,20 @@ model Profile {
   avatarUrl String?  @map("avatar_url")
   createdAt DateTime @default(now()) @map("created_at")
 
+  weightEntries WeightEntry[]
+
   @@map("profiles")
+}
+
+model WeightEntry {
+  id         String   @id @default(cuid())
+  profileId  String   @map("profile_id")
+  weight     Float
+  recordedAt DateTime @default(now()) @map("recorded_at")
+
+  profile Profile @relation(fields: [profileId], references: [id], onDelete: Cascade)
+
+  @@map("weight_entries")
 }
 
 model Muscle {

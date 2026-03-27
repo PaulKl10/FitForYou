@@ -1,22 +1,50 @@
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+"use client";
+
+import { useState, useTransition } from "react";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
 import { Separator } from "@/components/ui/separator";
 import { updateProfile } from "@/features/profile/services/profile";
+import { ProfileCardHeader } from "@/features/profile/components/ProfileCardHeader";
+import { ProfileReadOnly } from "@/features/profile/components/ProfileReadOnly";
+import { ProfileEditForm } from "@/features/profile/components/ProfileEditForm";
+import { WeightChart } from "@/features/profile/components/WeightChart";
+import { BmiSection } from "@/features/profile/components/BmiSection";
 import type { ProfileViewProps } from "@/types";
 
-export function ProfileView({ profile, email }: ProfileViewProps) {
-  const initials = profile.name
-    .split(" ")
-    .map((n: string) => n[0])
-    .join("")
-    .toUpperCase()
-    .slice(0, 2);
+export function ProfileView({
+  profile,
+  email,
+  weightHistory,
+}: ProfileViewProps) {
+  const [isEditing, setIsEditing] = useState(false);
+  const [selectedAvatarUrl, setSelectedAvatarUrl] = useState<string | null>(
+    profile.avatarUrl ?? null,
+  );
+  const [isPending, startTransition] = useTransition();
+
+  function handleEdit() {
+    setSelectedAvatarUrl(profile.avatarUrl ?? null);
+    setIsEditing(true);
+  }
+
+  function handleCancel() {
+    setSelectedAvatarUrl(profile.avatarUrl ?? null);
+    setIsEditing(false);
+  }
+
+  function handleSubmit(formData: FormData) {
+    startTransition(async () => {
+      await updateProfile(formData);
+      setIsEditing(false);
+    });
+  }
+
+  const showStats =
+    weightHistory.length > 0 || (!!profile.weight && !!profile.height);
 
   return (
-    <div className="space-y-8 max-w-lg">
+    <div className="flex flex-col gap-8">
+      {/* En-tête de page */}
       <div>
         <p className="text-sm font-medium text-muted-foreground uppercase tracking-widest mb-1">
           Compte
@@ -25,91 +53,53 @@ export function ProfileView({ profile, email }: ProfileViewProps) {
         <p className="text-muted-foreground mt-1">Gérer tes informations</p>
       </div>
 
-      <Card className="border-border/60">
-        <CardHeader className="pt-4">
-          <div className="flex items-center gap-4">
-            <Avatar className="size-18 ring-2 ring-primary/20">
-              {profile.avatarUrl && (
-                <AvatarImage src={profile.avatarUrl} alt={profile.name} />
-              )}
-              <AvatarFallback className="text-xl font-bold bg-primary/15 text-primary">
-                {initials}
-              </AvatarFallback>
-            </Avatar>
-            <div>
-              <p className="text-lg font-bold">{profile.name}</p>
-              <p className="text-sm text-muted-foreground">{email}</p>
-            </div>
-          </div>
-        </CardHeader>
-
-        <Separator className="opacity-50" />
-
-        <CardContent>
-          <form
-            key={`${profile.name}-${profile.weight}-${profile.height}`}
-            action={updateProfile}
-            className="space-y-5"
-          >
-            <div className="space-y-2">
-              <Label htmlFor="name" className="text-sm font-semibold">
-                Prénom / Nom
-              </Label>
-              <Input
-                id="name"
-                name="name"
-                defaultValue={profile.name}
-                required
+      <div className="flex flex-col md:flex-row gap-8">
+        {/* Section 1 — Informations */}
+        <Card className="border-border/60 w-full h-fit">
+          <CardHeader className="pt-4">
+            <ProfileCardHeader
+              profile={profile}
+              email={email}
+              isEditing={isEditing}
+              selectedAvatarUrl={selectedAvatarUrl}
+              onAvatarChange={setSelectedAvatarUrl}
+              onEdit={handleEdit}
+            />
+          </CardHeader>
+          <Separator className="opacity-50" />
+          <CardContent>
+            {isEditing ? (
+              <ProfileEditForm
+                profile={profile}
+                avatarUrl={selectedAvatarUrl}
+                isPending={isPending}
+                onSubmit={handleSubmit}
+                onCancel={handleCancel}
               />
-            </div>
-
-            <div className="grid grid-cols-2 gap-4">
-              <div className="space-y-2">
-                <Label htmlFor="weight" className="text-sm font-semibold">
-                  Poids
-                </Label>
-                <div className="relative">
-                  <Input
-                    id="weight"
-                    name="weight"
-                    type="number"
-                    step="0.1"
-                    defaultValue={profile.weight ?? ""}
-                    placeholder="70"
-                    className="pr-10"
-                  />
-                  <span className="absolute right-3 top-1/2 -translate-y-1/2 text-xs text-muted-foreground">
-                    kg
-                  </span>
-                </div>
-              </div>
-              <div className="space-y-2">
-                <Label htmlFor="height" className="text-sm font-semibold">
-                  Taille
-                </Label>
-                <div className="relative">
-                  <Input
-                    id="height"
-                    name="height"
-                    type="number"
-                    step="1"
-                    defaultValue={profile.height ?? ""}
-                    placeholder="175"
-                    className="pr-10"
-                  />
-                  <span className="absolute right-3 top-1/2 -translate-y-1/2 text-xs text-muted-foreground">
-                    cm
-                  </span>
-                </div>
-              </div>
-            </div>
-
-            <Button type="submit" className="w-full">
-              Sauvegarder les modifications
-            </Button>
-          </form>
-        </CardContent>
-      </Card>
+            ) : (
+              <ProfileReadOnly profile={profile} />
+            )}
+          </CardContent>
+        </Card>
+        {/* Section 2 — Suivi (si données disponibles) */}
+        {showStats && (
+          <div className="space-y-4 w-full">
+            {weightHistory.length > 0 && (
+              <Card className="border-border/60">
+                <CardContent className="pt-4">
+                  <p className="text-sm font-semibold mb-3">
+                    Évolution du poids
+                  </p>
+                  <WeightChart weightHistory={weightHistory} />
+                </CardContent>
+              </Card>
+            )}
+            {profile.weight && profile.height && (
+              <BmiSection weight={profile.weight} height={profile.height} />
+            )}
+          </div>
+        )}
+      </div>
     </div>
   );
 }
