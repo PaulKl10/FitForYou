@@ -52,7 +52,7 @@ export function AppSidebar() {
                 return (
                   <SidebarMenuItem key={href}>
                     <SidebarMenuButton
-                      render={<Link href={href} />}
+                      render={(props) => <Link href={href} {...props} />}
                       isActive={isActive}
                     >
                       <Icon
@@ -61,7 +61,14 @@ export function AppSidebar() {
                           "size-5 text-muted-foreground": !isActive,
                         })}
                       />
-                      <span>{label}</span>
+                      <span
+                        className={cn(
+                          "text-sm font-medium",
+                          isActive ? "text-white" : "text-muted-foreground",
+                        )}
+                      >
+                        {label}
+                      </span>
                     </SidebarMenuButton>
                   </SidebarMenuItem>
                 );

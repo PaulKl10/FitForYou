@@ -26,7 +26,7 @@ export function ProfileView({ profile, email }: ProfileViewProps) {
       </div>
 
       <Card className="border-border/60">
-        <CardHeader className="pb-4">
+        <CardHeader className="pt-4">
           <div className="flex items-center gap-4">
             <Avatar className="size-18 ring-2 ring-primary/20">
               {profile.avatarUrl && (
@@ -45,7 +45,7 @@ export function ProfileView({ profile, email }: ProfileViewProps) {
 
         <Separator className="opacity-50" />
 
-        <CardContent className="pt-6">
+        <CardContent>
           <form
             key={`${profile.name}-${profile.weight}-${profile.height}`}
             action={updateProfile}

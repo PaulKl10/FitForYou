@@ -40,7 +40,7 @@ export function UserMenu({ name, email, avatarUrl }: UserMenuProps) {
           <p className="text-xs text-muted-foreground">{email}</p>
         </div>
         <DropdownMenuSeparator />
-        <DropdownMenuItem render={<Link href="/profile" />}>
+        <DropdownMenuItem render={(props) => <Link href="/profile" {...props} />}>
           <User className="mr-2 h-4 w-4" />
           Mon profil
         </DropdownMenuItem>

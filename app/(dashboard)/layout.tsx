@@ -1,6 +1,6 @@
 import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
-import { prisma } from "@/lib/prisma";
+import { getProfile } from "@/features/profile/repositories/profile.repository";
 import { AppSidebar } from "@/components/nav/sidebar";
 import { UserMenu } from "@/components/nav/user-menu";
 import { Toaster } from "@/components/ui/sonner";
@@ -26,9 +26,7 @@ export default async function DashboardLayout({
 
   if (!user) redirect("/login");
 
-  const profile = await prisma.profile.findUnique({
-    where: { userId: user.id },
-  });
+  const profile = await getProfile(user.id);
 
   if (!profile) redirect("/login");
 

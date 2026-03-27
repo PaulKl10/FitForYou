@@ -1,6 +1,6 @@
 import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
-import { prisma } from "@/lib/prisma";
+import { getSessionsByUser } from "@/features/sessions/repositories/session.repository";
 import { SessionsView } from "@/features/sessions/View/SessionsView";
 
 export async function SessionsScreen() {
@@ -10,18 +10,7 @@ export async function SessionsScreen() {
   } = await supabase.auth.getUser();
   if (!user) redirect("/login");
 
-  const sessions = await prisma.session.findMany({
-    where: { userId: user.id },
-    orderBy: { date: "desc" },
-    include: {
-      _count: { select: { sets: true } },
-      sets: {
-        select: { exercise: { select: { nameFr: true } } },
-        distinct: ["exerciseId"],
-        take: 3,
-      },
-    },
-  });
+  const sessions = await getSessionsByUser(user.id);
 
   return <SessionsView sessions={sessions} />;
 }

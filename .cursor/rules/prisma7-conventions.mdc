@@ -1,6 +1,6 @@
 ---
 description: Conventions Prisma 7 pour ce projet
-globs: prisma/**,lib/prisma.ts,lib/actions/**
+globs: prisma/**,lib/prisma.ts,features/**/repositories/**
 alwaysApply: false
 ---
 
@@ -40,6 +40,34 @@ import { PrismaClient } from "@/app/generated/prisma/client"
 import { PrismaClient } from "@prisma/client"
 import { PrismaClient } from "@/app/generated/prisma"  // pas d'index
 ```
+
+## Pattern Repository
+
+Ne jamais importer `prisma` directement dans un `screen/`. Toute requête Prisma doit être dans `features/*/repositories/`.
+
+```ts
+// features/exercises/repositories/exercise.repository.ts
+import { prisma } from "@/lib/prisma"
+
+export async function findExercises(filters: ExerciseFilters) {
+  return prisma.exercise.findMany({ where: buildWhere(filters), ... })
+}
+```
+
+```ts
+// screens/ExercisesScreen.tsx  ✅
+import { findExercises } from "@/features/exercises/repositories/exercise.repository"
+
+export async function ExercisesScreen({ filters }) {
+  const exercises = await findExercises(filters)
+  ...
+}
+```
+
+Les repositories :
+- sont des fichiers `.ts` (pas `.tsx`)
+- n'ont pas de `'use server'` — ce sont de simples modules serveur
+- n'exportent que des fonctions async qui retournent des données typées
 
 ## Migrations
 

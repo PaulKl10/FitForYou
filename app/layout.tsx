@@ -34,6 +34,13 @@ export default function RootLayout({
       className={`${plusJakartaSans.variable} ${geistMono.variable} h-full antialiased`}
       suppressHydrationWarning
     >
+      {/* CSS critique inline pour éviter le FOUC pendant le chargement du CSS Tailwind */}
+      <head>
+        <style dangerouslySetInnerHTML={{ __html: `
+          html { background: oklch(0.098 0 0); color: oklch(0.962 0 0); }
+          html:not(.dark) { background: oklch(0.978 0 0); color: oklch(0.145 0 0); }
+        `}} />
+      </head>
       <body className="min-h-full flex flex-col">
         <ThemeProvider
           attribute="class"

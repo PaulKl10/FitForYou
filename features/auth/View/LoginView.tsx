@@ -45,15 +45,22 @@ export function LoginView() {
           </div>
         </div>
 
-        <Card className="border-border/60">
+        <Card className="border-border/60 pt-4">
           <CardHeader className="pb-2">
-            <CardTitle className="text-xl font-semibold font-sans">Connexion</CardTitle>
+            <CardTitle className="text-xl font-semibold font-sans">
+              Connexion
+            </CardTitle>
             <CardDescription>
               Accède à tes séances d&apos;entraînement
             </CardDescription>
           </CardHeader>
-          <form action={handleSubmit}>
-            <CardContent className="space-y-2">
+          <form
+            onSubmit={(event) => {
+              event.preventDefault();
+              handleSubmit(new FormData(event.currentTarget));
+            }}
+          >
+            <CardContent className="space-y-2 pb-4">
               {error && (
                 <p className="text-sm text-destructive bg-destructive/10 px-3 py-2.5 rounded-lg border border-destructive/20">
                   {error}
@@ -70,7 +77,7 @@ export function LoginView() {
                   placeholder="tu@exemple.com"
                   required
                   autoComplete="email"
-                  className="font-semibold font-sans"
+                  className="h-9 bg-card font-semibold font-sans"
                 />
               </div>
               <div className="space-y-1">
@@ -83,12 +90,14 @@ export function LoginView() {
                   type="password"
                   required
                   autoComplete="current-password"
+                  className="h-9 bg-card"
                 />
               </div>
             </CardContent>
             <CardFooter className="flex flex-col gap-4 pt-4">
               <Button
                 type="submit"
+                nativeButton
                 className="w-full font-semibold py-5 cursor-pointer hover:bg-primary/80"
                 disabled={isPending}
               >

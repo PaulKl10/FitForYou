@@ -19,14 +19,21 @@ screens/          Orchestration : data fetching serveur + assemblage des Views
 
 features/*/       Par domaine métier
   auth/
-    View/         LoginView, SignupView (composants "use client")
-    services/     auth.ts — Server Actions (login, signup, logout)
-  dashboard/View/ DashboardView
-  exercises/View/ ExercisesView
-  sessions/View/  SessionsView, SessionDetailView
+    View/           LoginView, SignupView (composants "use client")
+    services/       auth.ts — Server Actions (login, signup, logout)
+  dashboard/
+    View/           DashboardView
+    repositories/   getDashboardData(userId)
+  exercises/
+    View/           ExercisesView
+    repositories/   findExercises(filters), getExerciseFilters()
+  sessions/
+    View/           SessionsView, SessionDetailView
+    repositories/   getSessionsByUser(userId), getSessionById(id)
   profile/
-    View/         ProfileView
-    services/     profile.ts — Server Action updateProfile
+    View/           ProfileView
+    services/       profile.ts — Server Action updateProfile
+    repositories/   getProfile(userId)
 
 components/       UI transverse
   nav/            Sidebar, MobileNav, UserMenu
@@ -45,7 +52,8 @@ types/            Types TypeScript globaux — ViewProps, Prisma GetPayload
 ## Règles d'architecture
 
 - **`app/` pages** = 3-5 lignes max — elles importent et rendent un Screen ou une View
-- **`screens/`** = Server Components qui fetchent les données et passent des props typées aux Views
+- **`screens/`** = Server Components qui orchestrent : appellent les repositories, passent des props typées aux Views. Ne jamais y écrire de requêtes Prisma directement.
+- **`features/*/repositories/`** = accès aux données Prisma — fonctions async pures, pas de `'use server'`, appelées uniquement depuis les screens
 - **`features/*/View/`** = composants de présentation (peuvent être client ou serveur)
 - **`features/*/services/`** = Server Actions (`'use server'`)
 - **Types** dans `types/index.ts` en utilisant `GetPayload` de Prisma 7

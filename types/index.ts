@@ -41,12 +41,16 @@ export interface DashboardViewProps {
 
 export interface ExercisesViewProps {
   exercises: Exercise[];
+  totalExercises: number;
+  totalPages: number;
+  currentPage: number;
   allMuscles: string[];
   allEquipments: string[];
   filters: {
     q?: string;
-    muscle?: string;
-    equipment?: string;
+    muscle?: string[];
+    equipment?: string[];
+    page?: number;
   };
 }
 

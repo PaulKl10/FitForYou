@@ -16,9 +16,9 @@ export function ModeToggle() {
   return (
     <DropdownMenu>
       <DropdownMenuTrigger
-        render={
-          <Button variant="outline" size="icon-lg" aria-label="Changer le thème" />
-        }
+        render={(props) => (
+          <Button {...props} variant="outline" size="icon-lg" className="bg-card dark:bg-input" aria-label="Changer le thème" />
+        )}
       >
         <Sun className="size-4 rotate-0 scale-100 transition-all dark:-rotate-90 dark:scale-0" />
         <Moon className="absolute size-4 rotate-90 scale-0 transition-all dark:rotate-0 dark:scale-100" />

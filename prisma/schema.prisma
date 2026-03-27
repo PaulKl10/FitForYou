@@ -19,17 +19,43 @@ model Profile {
   @@map("profiles")
 }
 
-model Exercise {
-  id             String   @id @default(cuid())
-  nameFr         String   @map("name_fr")
-  nameEn         String   @map("name_en")
-  bodyPart       String   @map("body_part")
-  targetMuscle   String   @map("target_muscle")
-  equipment      String
-  gifUrl         String?  @map("gif_url")
-  instructionsFr String?  @map("instructions_fr")
+model Muscle {
+  id        String           @id @default(cuid())
+  name      String           @unique
+  exercises ExerciseMuscle[]
 
-  sets Set[]
+  @@map("muscles")
+}
+
+model ExerciseMuscle {
+  exerciseId String  @map("exercise_id")
+  muscleId   String  @map("muscle_id")
+  isPrimary  Boolean @map("is_primary")
+
+  exercise Exercise @relation(fields: [exerciseId], references: [id], onDelete: Cascade)
+  muscle   Muscle   @relation(fields: [muscleId], references: [id])
+
+  @@id([exerciseId, muscleId])
+  @@map("exercise_muscles")
+}
+
+model Exercise {
+  id             String @id @default(cuid())
+  externalId     String @unique @map("external_id")
+  nameFr         String @map("name_fr")
+  nameEn         String @map("name_en")
+  category       String
+  bodyPart       String @map("body_part")
+  targetMuscle   String @map("target_muscle")
+  equipment      String?
+  level          String?
+  force          String?
+  mechanic       String?
+  gifUrl         String? @map("gif_url")
+  instructionsFr String? @map("instructions_fr")
+
+  muscles ExerciseMuscle[]
+  sets    Set[]
 
   @@map("exercises")
 }
@@ -48,12 +74,12 @@ model Session {
 }
 
 model Set {
-  id         String   @id @default(cuid())
-  sessionId  String   @map("session_id")
-  exerciseId String   @map("exercise_id")
-  setNumber  Int      @map("set_number")
+  id         String  @id @default(cuid())
+  sessionId  String  @map("session_id")
+  exerciseId String  @map("exercise_id")
+  setNumber  Int     @map("set_number")
   reps       Int?
-  weightKg   Float?   @map("weight_kg")
+  weightKg   Float?  @map("weight_kg")
 
   session  Session  @relation(fields: [sessionId], references: [id], onDelete: Cascade)
   exercise Exercise @relation(fields: [exerciseId], references: [id])
