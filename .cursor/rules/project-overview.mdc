@@ -23,15 +23,19 @@ features/*/       Par domaine métier
     services/       auth.ts — Server Actions (login, signup, logout)
   dashboard/
     View/           DashboardView
+    types/          props + types Prisma du domaine
     repositories/   getDashboardData(userId)
   exercises/
     View/           ExercisesView
+    types/
     repositories/   findExercises(filters), getExerciseFilters()
   sessions/
     View/           SessionsView, SessionDetailView
+    types/
     repositories/   getSessionsByUser(userId), getSessionById(id)
   profile/
     View/           ProfileView
+    types/
     services/       profile.ts — Server Action updateProfile
     repositories/   getProfile(userId)
 
@@ -45,8 +49,6 @@ providers/        Providers React (vide pour l'instant)
 lib/
   supabase/       server.ts, client.ts, middleware.ts
   prisma.ts       Singleton PrismaClient avec adapter PrismaPg
-
-types/            Types TypeScript globaux — ViewProps, Prisma GetPayload
 ```
 
 ## Règles d'architecture
@@ -56,7 +58,7 @@ types/            Types TypeScript globaux — ViewProps, Prisma GetPayload
 - **`features/*/repositories/`** = accès aux données Prisma — fonctions async pures, pas de `'use server'`, appelées uniquement depuis les screens
 - **`features/*/View/`** = composants de présentation (peuvent être client ou serveur)
 - **`features/*/services/`** = Server Actions (`'use server'`)
-- **Types** dans `types/index.ts` en utilisant `GetPayload` de Prisma 7
+- **Types** dans `features/<domaine>/types/` (barrel `index.ts`) : `GetPayload` Prisma 7, props des Views du domaine ; imports du type `@/features/<domaine>/types`
 
 ## Variables d'environnement
 

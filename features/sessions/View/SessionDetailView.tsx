@@ -16,6 +16,7 @@ export function SessionDetailView({ session, setsByExercise }: SessionDetailView
           render={<Link href="/sessions" />}
           nativeButton={false}
           className="mt-1 shrink-0"
+          aria-label="Retour aux séances"
         >
           <ArrowLeft className="size-4" />
         </Button>

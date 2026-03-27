@@ -15,7 +15,7 @@ export function SessionsView({ sessions }: SessionsViewProps) {
           </p>
           <h1 className="text-3xl font-extrabold tracking-tight">Mes séances</h1>
           <p className="text-muted-foreground mt-1">
-            Historique de tes entraînements
+            Historique de tes séances
           </p>
         </div>
         <Button render={<Link href="/sessions/new" />} nativeButton={false}>
@@ -32,11 +32,11 @@ export function SessionsView({ sessions }: SessionsViewProps) {
             </div>
             <h3 className="font-bold text-lg mb-1">Aucune séance</h3>
             <p className="text-sm text-muted-foreground mb-6">
-              Lance ta première séance d&apos;entraînement !
+              Lance ta première séance !
             </p>
             <Button render={<Link href="/sessions/new" />} nativeButton={false}>
               <Plus className="size-4" />
-              Commencer
+              Commencer une séance
             </Button>
           </CardContent>
         </Card>

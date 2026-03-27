@@ -47,7 +47,7 @@ export function SignupView() {
           <CardHeader className="pb-4">
             <CardTitle className="text-xl">Créer un compte</CardTitle>
             <CardDescription>
-              Commence à tracker tes entraînements
+              Commence à tracker tes séances
             </CardDescription>
           </CardHeader>
           <form action={handleSubmit}>

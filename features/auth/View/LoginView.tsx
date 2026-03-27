@@ -51,7 +51,7 @@ export function LoginView() {
               Connexion
             </CardTitle>
             <CardDescription>
-              Accède à tes séances d&apos;entraînement
+              Accède à tes séances
             </CardDescription>
           </CardHeader>
           <form

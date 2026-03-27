@@ -29,7 +29,7 @@ export function DashboardView({
             Bonjour, {profileName}
           </h1>
           <p className="text-muted-foreground mt-1">
-            Prêt pour l&apos;entraînement du jour ?
+            Prêt pour ta séance du jour ?
           </p>
         </div>
         <Button render={<Link href="/sessions/new" />} nativeButton={false}>
@@ -55,7 +55,7 @@ export function DashboardView({
               {recentSessions.length}
             </div>
             <p className="text-xs text-muted-foreground mt-0.5">
-              entraînements
+              séances enregistrées
             </p>
           </CardContent>
         </Card>
@@ -100,7 +100,7 @@ export function DashboardView({
                 : "—"}
             </div>
             <p className="text-xs text-muted-foreground mt-0.5">
-              {recentSessions[0] ? "dernière activité" : "aucune séance"}
+              {recentSessions[0] ? "ta dernière séance" : "aucune séance"}
             </p>
           </CardContent>
         </Card>
@@ -131,7 +131,7 @@ export function DashboardView({
                 Aucune séance pour l&apos;instant
               </p>
               <p className="text-sm text-muted-foreground mb-5">
-                Lance ta première séance d&apos;entraînement !
+                Lance ta première séance !
               </p>
               <Button
                 render={<Link href="/sessions/new" />}

@@ -16,11 +16,11 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: {
-    default: "FitForYou",
-    template: "%s · FitForYou",
+  robots: {
+    index: false,
+    follow: false,
+    googleBot: { index: false, follow: false },
   },
-  description: "Tracker tes séances de sport en salle de gym",
 };
 
 export default function RootLayout({

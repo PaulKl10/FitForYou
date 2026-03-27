@@ -40,10 +40,11 @@ Les fichiers de routes dans `app/` doivent rester minimalistes (3-5 lignes idéa
 
 **Règle Prisma** : ne jamais importer `prisma` directement dans un `screen/`. Passer obligatoirement par un repository.
 
-### 4) Types centralisés
+### 4) Types par feature
 
-- Définir les types globaux dans `types/index.ts`.
-- Utiliser `Prisma.GetPayload` (Prisma 7) quand pertinent.
+- Définir les types du domaine dans `features/<domaine>/types/` (souvent un `index.ts` qui réexporte).
+- Y placer les alias Prisma (`GetPayload` / modèles générés) et les props des Views de ce domaine.
+- Importer depuis le barrel du domaine, ex. `@/features/exercises/types`.
 
 ## Structure de référence
 
@@ -60,15 +61,19 @@ features/
     services/
   dashboard/
     View/
+    types/           # props Dashboard, types Prisma du domaine
     repositories/    # ex: getDashboardData(userId)
   exercises/
     View/
+    types/
     repositories/    # ex: findExercises(filters), getExerciseFilters()
   sessions/
     View/
+    types/
     repositories/    # ex: getSessionsByUser(userId)
   profile/
     View/
+    types/
     services/
     repositories/    # ex: getProfile(userId)
 
