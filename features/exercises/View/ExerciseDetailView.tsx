@@ -110,7 +110,7 @@ export function ExerciseDetailView({
                     {primaryMuscles.map((m) => (
                       <Badge
                         key={m}
-                        className="bg-primary/15 text-blue-500 border-0 capitalize"
+                        className="bg-primary/15 text-primary border-0 capitalize"
                       >
                         {m}
                       </Badge>
@@ -148,7 +148,7 @@ export function ExerciseDetailView({
           <ol className="space-y-3">
             {instructions.map((step, i) => (
               <li key={i} className="flex gap-4">
-                <span className="flex size-6 shrink-0 items-center justify-center rounded-full bg-primary/15 text-xs font-bold text-blue-500">
+                <span className="flex size-6 shrink-0 items-center justify-center rounded-full bg-primary/15 text-xs font-bold text-primary">
                   {i + 1}
                 </span>
                 <p className="text-sm text-muted-foreground leading-relaxed pt-0.5">
