@@ -16,7 +16,7 @@ export function ExercisesView({
   const favoriteSet = new Set(favoriteIds);
 
   return (
-    <div className="space-y-8">
+    <div className="space-y-4">
       <div>
         <p className="text-sm font-medium text-muted-foreground uppercase tracking-widest mb-1">
           Bibliothèque

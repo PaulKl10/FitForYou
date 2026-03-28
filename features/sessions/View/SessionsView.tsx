@@ -61,11 +61,11 @@ export function SessionsView({ sessions }: SessionsViewProps) {
               >
                 <div className="p-4 rounded-xl border border-border/60 bg-card hover:border-primary/40 hover:bg-primary/5 transition-all">
                   <div className="flex items-start justify-between gap-3">
-                    <div className="flex items-start gap-3">
+                    <div className="flex min-w-0 flex-1 items-start gap-3">
                       <div className="flex items-center justify-center size-10 rounded-xl bg-primary/10 shrink-0 mt-0.5">
                         <Dumbbell className="size-4.5 text-blue-500" />
                       </div>
-                      <div className="space-y-1">
+                      <div className="min-w-0 flex-1 space-y-1">
                         {session.name ? (
                           <>
                             <p className="font-semibold">{session.name}</p>

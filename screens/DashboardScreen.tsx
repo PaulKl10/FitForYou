@@ -10,13 +10,14 @@ export async function DashboardScreen() {
   } = await supabase.auth.getUser();
   if (!user) redirect("/login");
 
-  const { profile, recentSessions, totalSets } = await getDashboardData(user.id);
+  const { profile, recentSessions, recentExercises, totalSets } = await getDashboardData(user.id);
   if (!profile) redirect("/login");
 
   return (
     <DashboardView
       profileName={profile.name}
       recentSessions={recentSessions}
+      recentExercises={recentExercises}
       totalSets={totalSets}
     />
   );

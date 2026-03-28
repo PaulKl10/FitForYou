@@ -93,7 +93,7 @@ export function ExercisesFilters({
   };
 
   return (
-    <div className="flex flex-col sm:flex-row justify-between gap-2">
+    <div className="flex justify-between gap-2 sticky top-0 bg-background z-50 py-2 flex-wrap">
       <div className="flex flex-col md:flex-row gap-2">
         <FilterSearchInput
           name="q"
@@ -101,7 +101,7 @@ export function ExercisesFilters({
           value={q}
           onChange={(e) => setQ(e.target.value)}
         />
-        <div className="flex justify-between w-full md:w-fit gap-2">
+        <div className="flex justify-between w-full md:w-fit gap-2 flex-wrap">
           <div className="flex-1">
             <FilterMultiSelect
               value={muscle}
