@@ -1,11 +1,18 @@
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { ArrowLeft, Clock, StickyNote, Dumbbell } from "lucide-react";
+import { ArrowLeft, Clock, Pencil, StickyNote, Dumbbell } from "lucide-react";
 import type { SessionDetailViewProps } from "@/features/sessions/types";
 
 export function SessionDetailView({ session, setsByExercise }: SessionDetailViewProps) {
   const exerciseGroups = Object.values(setsByExercise);
+
+  const dateLabel = new Date(session.date).toLocaleDateString("fr-FR", {
+    weekday: "long",
+    day: "numeric",
+    month: "long",
+    year: "numeric",
+  });
 
   return (
     <div className="space-y-8 max-w-2xl">
@@ -20,18 +27,24 @@ export function SessionDetailView({ session, setsByExercise }: SessionDetailView
         >
           <ArrowLeft className="size-4" />
         </Button>
-        <div>
+        <div className="flex-1 min-w-0">
           <p className="text-sm font-medium text-muted-foreground uppercase tracking-widest mb-1">
             Détail de la séance
           </p>
-          <h1 className="text-2xl font-extrabold tracking-tight capitalize">
-            {new Date(session.date).toLocaleDateString("fr-FR", {
-              weekday: "long",
-              day: "numeric",
-              month: "long",
-              year: "numeric",
-            })}
-          </h1>
+          {session.name ? (
+            <>
+              <h1 className="text-2xl font-extrabold tracking-tight">
+                {session.name}
+              </h1>
+              <p className="text-sm text-muted-foreground mt-0.5 capitalize">
+                {dateLabel}
+              </p>
+            </>
+          ) : (
+            <h1 className="text-2xl font-extrabold tracking-tight capitalize">
+              {dateLabel}
+            </h1>
+          )}
           <div className="flex items-center gap-3 mt-2">
             <Badge variant="secondary">
               {session.sets.length} série{session.sets.length > 1 ? "s" : ""}
@@ -47,6 +60,16 @@ export function SessionDetailView({ session, setsByExercise }: SessionDetailView
             </span>
           </div>
         </div>
+        <Button
+          variant="outline"
+          size="icon"
+          render={<Link href={`/sessions/${session.id}/edit`} />}
+          nativeButton={false}
+          className="mt-1 shrink-0"
+          aria-label="Modifier la séance"
+        >
+          <Pencil className="size-4" />
+        </Button>
       </div>
 
       {session.notes && (
@@ -64,9 +87,11 @@ export function SessionDetailView({ session, setsByExercise }: SessionDetailView
                 <Dumbbell className="size-3.5 text-primary" />
               </div>
               <h2 className="font-semibold text-sm">{exercise.nameFr}</h2>
-              <Badge variant="outline" className="text-xs border-border/60 ml-auto">
-                {exercise.equipment}
-              </Badge>
+              {exercise.equipment && (
+                <Badge variant="outline" className="text-xs border-border/60 ml-auto">
+                  {exercise.equipment}
+                </Badge>
+              )}
             </div>
 
             <table className="w-full text-sm">

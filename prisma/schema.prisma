@@ -90,6 +90,7 @@ model FavoriteExercise {
 model Session {
   id              String   @id @default(cuid())
   userId          String   @map("user_id")
+  name            String?
   date            DateTime
   durationMinutes Int?     @map("duration_minutes")
   notes           String?

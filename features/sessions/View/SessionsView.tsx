@@ -63,17 +63,31 @@ export function SessionsView({ sessions }: SessionsViewProps) {
                   <div className="flex items-start justify-between gap-3">
                     <div className="flex items-start gap-3">
                       <div className="flex items-center justify-center size-10 rounded-xl bg-primary/10 shrink-0 mt-0.5">
-                        <Dumbbell className="size-4.5 text-primary" />
+                        <Dumbbell className="size-4.5 text-blue-500" />
                       </div>
                       <div className="space-y-1">
-                        <p className="font-semibold capitalize">
-                          {date.toLocaleDateString("fr-FR", {
-                            weekday: "long",
-                            day: "numeric",
-                            month: "long",
-                            year: "numeric",
-                          })}
-                        </p>
+                        {session.name ? (
+                          <>
+                            <p className="font-semibold">{session.name}</p>
+                            <p className="text-xs text-muted-foreground capitalize">
+                              {date.toLocaleDateString("fr-FR", {
+                                weekday: "long",
+                                day: "numeric",
+                                month: "long",
+                                year: "numeric",
+                              })}
+                            </p>
+                          </>
+                        ) : (
+                          <p className="font-semibold capitalize">
+                            {date.toLocaleDateString("fr-FR", {
+                              weekday: "long",
+                              day: "numeric",
+                              month: "long",
+                              year: "numeric",
+                            })}
+                          </p>
+                        )}
                         <div className="flex items-center flex-wrap gap-2">
                           <Badge variant="secondary" className="text-xs">
                             {session._count.sets} série

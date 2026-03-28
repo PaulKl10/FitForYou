@@ -1,0 +1,123 @@
+"use client";
+
+import { Dumbbell, Plus, Trash2, X } from "lucide-react";
+import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+
+export interface SetData {
+  reps: string;
+  weightKg: string;
+}
+
+export interface SessionExerciseData {
+  exerciseId: string;
+  nameFr: string;
+  targetMuscle: string;
+  equipment: string | null;
+  sets: SetData[];
+}
+
+interface SessionExerciseCardProps {
+  exercise: SessionExerciseData;
+  onRemove: () => void;
+  onSetChange: (setIndex: number, field: "reps" | "weightKg", value: string) => void;
+  onAddSet: () => void;
+  onRemoveSet: (setIndex: number) => void;
+}
+
+export function SessionExerciseCard({
+  exercise,
+  onRemove,
+  onSetChange,
+  onAddSet,
+  onRemoveSet,
+}: SessionExerciseCardProps) {
+  return (
+    <div className="rounded-xl border border-border/60 bg-card overflow-hidden">
+      {/* Header */}
+      <div className="flex items-center gap-3 px-4 py-3 border-b border-border/60 bg-muted/30">
+        <div className="flex items-center justify-center size-7 rounded-md bg-primary/10 shrink-0">
+          <Dumbbell className="size-3.5 text-primary" />
+        </div>
+        <div className="flex-1 min-w-0">
+          <p className="font-semibold text-sm truncate">{exercise.nameFr}</p>
+          <p className="text-xs text-muted-foreground">{exercise.targetMuscle}</p>
+        </div>
+        {exercise.equipment && (
+          <Badge variant="outline" className="text-xs border-border/60 shrink-0">
+            {exercise.equipment}
+          </Badge>
+        )}
+        <Button
+          type="button"
+          variant="ghost"
+          size="icon"
+          className="size-7 text-muted-foreground hover:text-destructive shrink-0"
+          onClick={onRemove}
+          aria-label="Supprimer l'exercice"
+        >
+          <Trash2 className="size-3.5" />
+        </Button>
+      </div>
+
+      {/* Sets */}
+      <div className="p-3 space-y-2">
+        {exercise.sets.length > 0 && (
+          <div className="grid grid-cols-[2rem_1fr_1fr_2rem] gap-2 px-1">
+            <span className="text-xs font-semibold text-muted-foreground text-center">#</span>
+            <span className="text-xs font-semibold text-muted-foreground">Reps</span>
+            <span className="text-xs font-semibold text-muted-foreground">Poids (kg)</span>
+            <span />
+          </div>
+        )}
+
+        {exercise.sets.map((set, i) => (
+          <div key={i} className="grid grid-cols-[2rem_1fr_1fr_2rem] items-center gap-2">
+            <span className="flex items-center justify-center size-6 rounded-md bg-primary/10 text-primary text-xs font-bold mx-auto">
+              {i + 1}
+            </span>
+            <Input
+              type="number"
+              min="0"
+              placeholder="—"
+              value={set.reps}
+              onChange={(e) => onSetChange(i, "reps", e.target.value)}
+              className="h-8 text-sm"
+            />
+            <Input
+              type="number"
+              min="0"
+              step="0.5"
+              placeholder="—"
+              value={set.weightKg}
+              onChange={(e) => onSetChange(i, "weightKg", e.target.value)}
+              className="h-8 text-sm"
+            />
+            <Button
+              type="button"
+              variant="ghost"
+              size="icon"
+              className="size-7 text-muted-foreground hover:text-destructive"
+              onClick={() => onRemoveSet(i)}
+              aria-label="Supprimer la série"
+            >
+              <X className="size-3.5" />
+            </Button>
+          </div>
+        ))}
+
+        <Button
+          type="button"
+          variant="ghost"
+          size="sm"
+          className="w-full text-xs text-muted-foreground h-8 border border-dashed border-border/60 hover:border-primary/40 hover:text-primary hover:bg-primary/5"
+          onClick={onAddSet}
+        >
+          <Plus className="size-3.5" />
+          Ajouter une série
+        </Button>
+      </div>
+    </div>
+  );
+}
