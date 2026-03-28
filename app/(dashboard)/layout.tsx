@@ -33,7 +33,9 @@ export default async function DashboardLayout({
           email={user.email ?? ""}
           avatarUrl={profile.avatarUrl}
         />
-        <main className="flex-1 px-4 py-6 md:px-6">{children}</main>
+        <main className="flex-1 px-4 pt-6 pb-20 md:px-6 md:py-6">
+          {children}
+        </main>
         <MobileNav />
       </SidebarInset>
       <Toaster />

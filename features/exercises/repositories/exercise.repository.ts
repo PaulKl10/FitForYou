@@ -79,6 +79,40 @@ export async function getExerciseById(id: string) {
   });
 }
 
+export async function getExerciseProgress(exerciseId: string, userId: string) {
+  const sets = await prisma.set.findMany({
+    where: { exerciseId, session: { userId } },
+    select: {
+      weightKg: true,
+      session: { select: { id: true, date: true, name: true } },
+    },
+    orderBy: { session: { date: "asc" } },
+  });
+
+  // Group by session, keep max weight per session
+  const map = new Map<
+    string,
+    { date: Date; maxWeightKg: number | null; sessionName: string | null }
+  >();
+  for (const set of sets) {
+    const key = set.session.id;
+    if (!map.has(key)) {
+      map.set(key, {
+        date: set.session.date,
+        maxWeightKg: set.weightKg,
+        sessionName: set.session.name,
+      });
+    } else {
+      const cur = map.get(key)!;
+      if (set.weightKg != null && (cur.maxWeightKg == null || set.weightKg > cur.maxWeightKg)) {
+        cur.maxWeightKg = set.weightKg;
+      }
+    }
+  }
+
+  return Array.from(map.values());
+}
+
 export async function getFavoriteIds(userId: string): Promise<string[]> {
   const profile = await prisma.profile.findUnique({
     where: { userId },

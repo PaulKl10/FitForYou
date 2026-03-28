@@ -1,6 +1,10 @@
 import { notFound, redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
-import { getExerciseById, getFavoriteIds } from "@/features/exercises/repositories/exercise.repository";
+import {
+  getExerciseById,
+  getExerciseProgress,
+  getFavoriteIds,
+} from "@/features/exercises/repositories/exercise.repository";
 import { ExerciseDetailView } from "@/features/exercises/View/ExerciseDetailView";
 
 interface ExerciseDetailScreenProps {
@@ -14,9 +18,10 @@ export async function ExerciseDetailScreen({ id }: ExerciseDetailScreenProps) {
   } = await supabase.auth.getUser();
   if (!user) redirect("/login");
 
-  const [exercise, favoriteIds] = await Promise.all([
+  const [exercise, favoriteIds, progress] = await Promise.all([
     getExerciseById(id),
     getFavoriteIds(user.id),
+    getExerciseProgress(id, user.id),
   ]);
 
   if (!exercise) notFound();
@@ -25,6 +30,7 @@ export async function ExerciseDetailScreen({ id }: ExerciseDetailScreenProps) {
     <ExerciseDetailView
       exercise={exercise}
       isFavorite={favoriteIds.includes(id)}
+      progress={progress}
     />
   );
 }

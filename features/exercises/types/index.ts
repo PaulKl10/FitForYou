@@ -7,6 +7,12 @@ export type ExerciseWithMuscles = ExerciseGetPayload<{
 }>;
 export type Muscle = MuscleGetPayload<{}>;
 
+export interface ExerciseProgressPoint {
+  date: Date;
+  maxWeightKg: number | null;
+  sessionName: string | null;
+}
+
 export interface ExercisesViewProps {
   exercises: Exercise[];
   totalExercises: number;

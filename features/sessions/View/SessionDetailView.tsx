@@ -2,9 +2,14 @@ import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { ArrowLeft, Clock, Pencil, StickyNote, Dumbbell } from "lucide-react";
+import { DeleteSessionButton } from "@/features/sessions/components/DeleteSessionButton";
+import { DuplicateSessionModal } from "@/features/sessions/components/DuplicateSessionModal";
 import type { SessionDetailViewProps } from "@/features/sessions/types";
 
-export function SessionDetailView({ session, setsByExercise }: SessionDetailViewProps) {
+export function SessionDetailView({
+  session,
+  setsByExercise,
+}: SessionDetailViewProps) {
   const exerciseGroups = Object.values(setsByExercise);
 
   const dateLabel = new Date(session.date).toLocaleDateString("fr-FR", {
@@ -47,7 +52,8 @@ export function SessionDetailView({ session, setsByExercise }: SessionDetailView
           )}
           <div className="flex items-center gap-3 mt-2">
             <Badge variant="secondary">
-              {session.sets.length} série{session.sets.length > 1 ? "s" : ""}
+              {exerciseGroups.length} exercice
+              {exerciseGroups.length > 1 ? "s" : ""}
             </Badge>
             {session.durationMinutes && (
               <span className="flex items-center gap-1.5 text-sm text-muted-foreground">
@@ -56,39 +62,55 @@ export function SessionDetailView({ session, setsByExercise }: SessionDetailView
               </span>
             )}
             <span className="text-sm text-muted-foreground">
-              {exerciseGroups.length} exercice{exerciseGroups.length > 1 ? "s" : ""}
+              {session.sets.length} série{session.sets.length > 1 ? "s" : ""}
             </span>
           </div>
         </div>
-        <Button
-          variant="outline"
-          size="icon"
-          render={<Link href={`/sessions/${session.id}/edit`} />}
-          nativeButton={false}
-          className="mt-1 shrink-0"
-          aria-label="Modifier la séance"
-        >
-          <Pencil className="size-4" />
-        </Button>
+        <div className="flex items-center gap-1 mt-1 shrink-0">
+          <DuplicateSessionModal sessionId={session.id} />
+          <Button
+            variant="outline"
+            size="icon"
+            render={<Link href={`/sessions/${session.id}/edit`} />}
+            nativeButton={false}
+            aria-label="Modifier la séance"
+          >
+            <Pencil className="size-4" />
+          </Button>
+          <DeleteSessionButton sessionId={session.id} />
+        </div>
       </div>
 
       {session.notes && (
         <div className="flex items-start gap-3 p-4 rounded-xl border border-border/60 bg-card text-sm">
           <StickyNote className="size-4 mt-0.5 text-primary shrink-0" />
-          <p className="text-muted-foreground leading-relaxed">{session.notes}</p>
+          <p className="text-muted-foreground leading-relaxed">
+            {session.notes}
+          </p>
         </div>
       )}
 
       <div className="space-y-5">
         {exerciseGroups.map(({ exercise, sets }) => (
-          <div key={exercise.id} className="rounded-xl border border-border/60 bg-card overflow-hidden">
+          <div
+            key={exercise.id}
+            className="rounded-xl border border-border/60 bg-card overflow-hidden"
+          >
             <div className="flex items-center gap-3 px-4 py-3 border-b border-border/60 bg-muted/30">
               <div className="flex items-center justify-center size-7 rounded-md bg-primary/10 shrink-0">
                 <Dumbbell className="size-3.5 text-primary" />
               </div>
-              <h2 className="font-semibold text-sm">{exercise.nameFr}</h2>
+              <Link
+                href={`/exercises/${exercise.id}`}
+                className="font-semibold text-sm hover:text-primary transition-colors flex-1 min-w-0 truncate"
+              >
+                {exercise.nameFr}
+              </Link>
               {exercise.equipment && (
-                <Badge variant="outline" className="text-xs border-border/60 ml-auto">
+                <Badge
+                  variant="outline"
+                  className="text-xs border-border/60 ml-auto"
+                >
                   {exercise.equipment}
                 </Badge>
               )}
@@ -121,13 +143,27 @@ export function SessionDetailView({ session, setsByExercise }: SessionDetailView
                     </td>
                     <td className="px-4 py-3 text-right font-medium">
                       {set.reps != null ? (
-                        <span>{set.reps} <span className="text-muted-foreground text-xs">reps</span></span>
-                      ) : "—"}
+                        <span>
+                          {set.reps}{" "}
+                          <span className="text-muted-foreground text-xs">
+                            reps
+                          </span>
+                        </span>
+                      ) : (
+                        "—"
+                      )}
                     </td>
                     <td className="px-4 py-3 text-right font-medium">
                       {set.weightKg != null ? (
-                        <span className="text-accent font-semibold">{set.weightKg} <span className="text-muted-foreground text-xs font-normal">kg</span></span>
-                      ) : "—"}
+                        <span className="text-accent font-semibold">
+                          {set.weightKg}{" "}
+                          <span className="text-muted-foreground text-xs font-normal">
+                            kg
+                          </span>
+                        </span>
+                      ) : (
+                        "—"
+                      )}
                     </td>
                   </tr>
                 ))}

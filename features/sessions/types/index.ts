@@ -6,12 +6,17 @@ export type SessionWithSets = SessionGetPayload<{
   };
 }>;
 
-export type SessionListItem = SessionGetPayload<{
+export type SessionListItemBase = SessionGetPayload<{
   include: {
     _count: { select: { sets: true } };
     sets: { select: { exercise: { select: { nameFr: true } } } };
   };
 }>;
+
+export type SessionListItem = SessionListItemBase & {
+  hasFilledSets: boolean;
+  exerciseCount: number;
+};
 
 export type ExerciseGroup = {
   exercise: SessionWithSets["sets"][0]["exercise"];

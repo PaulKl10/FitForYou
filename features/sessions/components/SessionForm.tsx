@@ -2,20 +2,12 @@
 
 import { useState } from "react";
 import Link from "next/link";
-import { format, parseISO } from "date-fns";
-import { fr as frDF } from "date-fns/locale";
-import { fr } from "react-day-picker/locale";
-import { ArrowLeft, CalendarIcon, Dumbbell, Plus } from "lucide-react";
+import { ArrowLeft, Dumbbell, Plus } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { Calendar } from "@/components/ui/calendar";
+import { DatePicker } from "@/components/ui/date-picker";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Card, CardContent } from "@/components/ui/card";
-import {
-  Popover,
-  PopoverContent,
-  PopoverTrigger,
-} from "@/components/ui/popover";
 import { ExercisePickerModal } from "@/features/sessions/components/ExercisePickerModal";
 import {
   SessionExerciseCard,
@@ -174,34 +166,11 @@ export function SessionForm({
             <Label htmlFor="session-date" className="text-sm font-semibold">
               Date
             </Label>
-            <Popover>
-              <PopoverTrigger
-                render={
-                  <Button
-                    id="session-date"
-                    type="button"
-                    variant="outline"
-                    className="h-9 w-full justify-between gap-2 bg-card dark:bg-input font-normal"
-                  />
-                }
-              >
-                <span className="truncate text-sm">
-                  {format(parseISO(date), "d MMMM yyyy", { locale: frDF })}
-                </span>
-                <CalendarIcon className="size-4 shrink-0 text-muted-foreground" />
-              </PopoverTrigger>
-              <PopoverContent className="w-auto p-0" align="start">
-                <Calendar
-                  mode="single"
-                  selected={parseISO(date)}
-                  onSelect={(d) => {
-                    if (d) setDate(format(d, "yyyy-MM-dd"));
-                  }}
-                  defaultMonth={parseISO(date)}
-                  locale={fr}
-                />
-              </PopoverContent>
-            </Popover>
+            <DatePicker
+              id="session-date"
+              value={date}
+              onChange={setDate}
+            />
           </div>
 
           <div className="space-y-2">

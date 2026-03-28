@@ -23,7 +23,11 @@ export function ExerciseCard({ exercise, isFavorite }: ExerciseCardProps) {
 
         {/* Bouton favori au-dessus du lien */}
         <div className="absolute top-2 right-2 z-10">
-          <FavoriteButton exerciseId={exercise.id} isFavorite={isFavorite} size="sm" />
+          <FavoriteButton
+            exerciseId={exercise.id}
+            isFavorite={isFavorite}
+            size="sm"
+          />
         </div>
 
         {exercise.gifUrl && (
@@ -39,7 +43,9 @@ export function ExerciseCard({ exercise, isFavorite }: ExerciseCardProps) {
         )}
 
         <CardHeader className="pb-2">
-          <CardTitle className="text-base leading-tight">{exercise.nameFr}</CardTitle>
+          <CardTitle className="text-base leading-tight">
+            {exercise.nameFr}
+          </CardTitle>
           <p className="text-xs text-muted-foreground">{exercise.nameEn}</p>
         </CardHeader>
 

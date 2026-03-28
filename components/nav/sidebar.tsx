@@ -64,7 +64,7 @@ export function AppSidebar() {
                       <span
                         className={cn(
                           "text-sm font-medium",
-                          isActive ? "text-white" : "text-muted-foreground",
+                          isActive ? "dark:text-white text-black" : "text-muted-foreground",
                         )}
                       >
                         {label}

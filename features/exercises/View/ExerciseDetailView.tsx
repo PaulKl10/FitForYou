@@ -3,11 +3,13 @@ import Link from "next/link";
 import { ArrowLeft } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { FavoriteButton } from "@/features/exercises/components/FavoriteButton";
-import type { ExerciseWithMuscles } from "@/features/exercises/types";
+import { ExerciseProgressChart } from "@/features/exercises/components/ExerciseProgressChart";
+import type { ExerciseWithMuscles, ExerciseProgressPoint } from "@/features/exercises/types";
 
 interface ExerciseDetailViewProps {
   exercise: ExerciseWithMuscles;
   isFavorite: boolean;
+  progress: ExerciseProgressPoint[];
 }
 
 const BADGE_META: Record<string, string> = {
@@ -21,6 +23,7 @@ const BADGE_META: Record<string, string> = {
 export function ExerciseDetailView({
   exercise,
   isFavorite,
+  progress,
 }: ExerciseDetailViewProps) {
   const primaryMuscles = exercise.muscles
     .filter((m) => m.isPrimary)
@@ -65,14 +68,16 @@ export function ExerciseDetailView({
       {/* GIF */}
       <div className="flex flex-col gap-4 md:flex-row">
         {exercise.gifUrl && (
-          <div className="relative aspect-video max-w-[600px] flex-1 rounded-2xl bg-muted">
-            <Image
-              src={exercise.gifUrl}
-              alt={exercise.nameFr}
-              fill
-              unoptimized
-              className="object-contain"
-            />
+          <div className="flex-1 px-4">
+            <div className="relative aspect-video max-w-[600px] flex-1 rounded-2xl overflow-hidden">
+              <Image
+                src={exercise.gifUrl}
+                alt={exercise.nameFr}
+                fill
+                unoptimized
+                className="object-cover"
+              />
+            </div>
           </div>
         )}
         {/* Meta badges */}
@@ -154,6 +159,17 @@ export function ExerciseDetailView({
           </ol>
         </div>
       )}
+
+      {/* Progress chart */}
+      <div className="space-y-3">
+        <h2 className="text-lg font-bold">Ma progression</h2>
+        <p className="text-sm text-muted-foreground">
+          Poids maximum soulevé par séance
+        </p>
+        <div className="rounded-xl border border-border/60 bg-card p-4">
+          <ExerciseProgressChart progress={progress} />
+        </div>
+      </div>
     </div>
   );
 }

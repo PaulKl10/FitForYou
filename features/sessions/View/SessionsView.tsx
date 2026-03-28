@@ -2,7 +2,7 @@ import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Plus, Dumbbell, Clock, ChevronRight } from "lucide-react";
+import { Plus, Dumbbell, Clock, ChevronRight, AlertCircle } from "lucide-react";
 import type { SessionsViewProps } from "@/features/sessions/types";
 
 export function SessionsView({ sessions }: SessionsViewProps) {
@@ -90,13 +90,19 @@ export function SessionsView({ sessions }: SessionsViewProps) {
                         )}
                         <div className="flex items-center flex-wrap gap-2">
                           <Badge variant="secondary" className="text-xs">
-                            {session._count.sets} série
-                            {session._count.sets > 1 ? "s" : ""}
+                            {session.exerciseCount} exercice
+                            {session.exerciseCount === 1 ? "" : "s"}
                           </Badge>
                           {session.durationMinutes && (
                             <span className="flex items-center gap-1 text-xs text-muted-foreground">
                               <Clock className="size-3" />
                               {session.durationMinutes} min
+                            </span>
+                          )}
+                          {session._count.sets > 0 && !session.hasFilledSets && (
+                            <span className="flex items-center gap-1 text-xs text-amber-500 font-medium">
+                              <AlertCircle className="size-3" />
+                              À compléter
                             </span>
                           )}
                         </div>
