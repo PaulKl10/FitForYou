@@ -24,6 +24,7 @@ interface SessionExerciseCardProps {
   onSetChange: (setIndex: number, field: "reps" | "weightKg", value: string) => void;
   onAddSet: () => void;
   onRemoveSet: (setIndex: number) => void;
+  dragHandle?: React.ReactNode;
 }
 
 export function SessionExerciseCard({
@@ -32,11 +33,13 @@ export function SessionExerciseCard({
   onSetChange,
   onAddSet,
   onRemoveSet,
+  dragHandle,
 }: SessionExerciseCardProps) {
   return (
     <div className="rounded-xl border border-border/60 bg-card overflow-hidden">
       {/* Header */}
-      <div className="flex items-center gap-3 px-4 py-3 border-b border-border/60 bg-muted/30">
+      <div className="flex items-center gap-2 px-3 py-3 border-b border-border/60 bg-muted/30">
+        {dragHandle}
         <div className="flex items-center justify-center size-7 rounded-md bg-primary/10 shrink-0">
           <Dumbbell className="size-3.5 text-primary" />
         </div>

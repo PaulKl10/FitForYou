@@ -2,7 +2,24 @@
 
 import { useState } from "react";
 import Link from "next/link";
-import { ArrowLeft, Dumbbell, Plus } from "lucide-react";
+import { ArrowLeft, Dumbbell, GripVertical, Plus } from "lucide-react";
+import {
+  DndContext,
+  closestCenter,
+  KeyboardSensor,
+  PointerSensor,
+  useSensor,
+  useSensors,
+  type DragEndEvent,
+} from "@dnd-kit/core";
+import {
+  SortableContext,
+  sortableKeyboardCoordinates,
+  useSortable,
+  verticalListSortingStrategy,
+  arrayMove,
+} from "@dnd-kit/sortable";
+import { CSS } from "@dnd-kit/utilities";
 import { Button } from "@/components/ui/button";
 import { DatePicker } from "@/components/ui/date-picker";
 import { Input } from "@/components/ui/input";
@@ -33,6 +50,68 @@ interface SessionFormProps {
   backHref: string;
 }
 
+// ── Sortable wrapper around SessionExerciseCard ──────────────────────────────
+
+interface SortableExerciseCardProps {
+  exercise: SessionExerciseData;
+  exIndex: number;
+  onRemove: () => void;
+  onSetChange: (setIndex: number, field: "reps" | "weightKg", value: string) => void;
+  onAddSet: () => void;
+  onRemoveSet: (setIndex: number) => void;
+}
+
+function SortableExerciseCard({
+  exercise,
+  exIndex,
+  onRemove,
+  onSetChange,
+  onAddSet,
+  onRemoveSet,
+}: SortableExerciseCardProps) {
+  const {
+    attributes,
+    listeners,
+    setNodeRef,
+    transform,
+    transition,
+    isDragging,
+  } = useSortable({ id: exercise.exerciseId });
+
+  return (
+    <div
+      ref={setNodeRef}
+      style={{
+        transform: CSS.Transform.toString(transform),
+        transition,
+        opacity: isDragging ? 0.5 : 1,
+        zIndex: isDragging ? 10 : undefined,
+      }}
+    >
+      <SessionExerciseCard
+        exercise={exercise}
+        onRemove={onRemove}
+        onSetChange={onSetChange}
+        onAddSet={onAddSet}
+        onRemoveSet={onRemoveSet}
+        dragHandle={
+          <button
+            type="button"
+            {...attributes}
+            {...listeners}
+            className="touch-none cursor-grab active:cursor-grabbing text-muted-foreground/50 hover:text-muted-foreground transition-colors shrink-0 -ml-1 px-0.5"
+            aria-label="Réordonner"
+          >
+            <GripVertical className="size-4" />
+          </button>
+        }
+      />
+    </div>
+  );
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+
 export function SessionForm({
   initialValues,
   onSubmit,
@@ -50,6 +129,22 @@ export function SessionForm({
     initialValues.exercises,
   );
   const [error, setError] = useState<string | null>(null);
+
+  const sensors = useSensors(
+    useSensor(PointerSensor),
+    useSensor(KeyboardSensor, { coordinateGetter: sortableKeyboardCoordinates }),
+  );
+
+  function handleDragEnd(event: DragEndEvent) {
+    const { active, over } = event;
+    if (over && active.id !== over.id) {
+      setExercises((prev) => {
+        const oldIndex = prev.findIndex((e) => e.exerciseId === active.id);
+        const newIndex = prev.findIndex((e) => e.exerciseId === over.id);
+        return arrayMove(prev, oldIndex, newIndex);
+      });
+    }
+  }
 
   function handleAddExercises(
     picked: {
@@ -236,20 +331,32 @@ export function SessionForm({
               </CardContent>
             </Card>
           ) : (
-            <div className="space-y-3">
-              {exercises.map((exercise, exIndex) => (
-                <SessionExerciseCard
-                  key={exercise.exerciseId}
-                  exercise={exercise}
-                  onRemove={() => handleRemoveExercise(exIndex)}
-                  onSetChange={(setIndex, field, value) =>
-                    handleSetChange(exIndex, setIndex, field, value)
-                  }
-                  onAddSet={() => handleAddSet(exIndex)}
-                  onRemoveSet={(setIndex) => handleRemoveSet(exIndex, setIndex)}
-                />
-              ))}
-            </div>
+            <DndContext
+              sensors={sensors}
+              collisionDetection={closestCenter}
+              onDragEnd={handleDragEnd}
+            >
+              <SortableContext
+                items={exercises.map((e) => e.exerciseId)}
+                strategy={verticalListSortingStrategy}
+              >
+                <div className="space-y-3">
+                  {exercises.map((exercise, exIndex) => (
+                    <SortableExerciseCard
+                      key={exercise.exerciseId}
+                      exercise={exercise}
+                      exIndex={exIndex}
+                      onRemove={() => handleRemoveExercise(exIndex)}
+                      onSetChange={(setIndex, field, value) =>
+                        handleSetChange(exIndex, setIndex, field, value)
+                      }
+                      onAddSet={() => handleAddSet(exIndex)}
+                      onRemoveSet={(setIndex) => handleRemoveSet(exIndex, setIndex)}
+                    />
+                  ))}
+                </div>
+              </SortableContext>
+            </DndContext>
           )}
         </div>
       </div>
