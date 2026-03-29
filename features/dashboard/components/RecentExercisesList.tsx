@@ -13,9 +13,9 @@ export function RecentExercisesList({ exercises }: RecentExercisesListProps) {
   if (exercises.length === 0) return null;
 
   return (
-    <div>
+    <section aria-labelledby="exercises-heading">
       <div className="flex items-center justify-between mb-4">
-        <h2 className="text-lg font-bold">Derniers exercices</h2>
+        <h2 id="exercises-heading" className="text-lg font-bold">Derniers exercices</h2>
         <Button
           variant="ghost"
           size="sm"
@@ -33,7 +33,8 @@ export function RecentExercisesList({ exercises }: RecentExercisesListProps) {
           <Link
             key={exercise.id}
             href={`/exercises/${exercise.id}`}
-            className="block group min-w-0"
+            aria-label={`Voir l'exercice ${exercise.nameFr}`}
+            className="block group min-w-0 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring rounded-xl"
           >
             <div className="h-full p-4 rounded-xl border border-border/60 bg-card hover:border-primary/40 hover:bg-primary/5 transition-all overflow-hidden">
               {/* Exercise header */}
@@ -77,7 +78,7 @@ export function RecentExercisesList({ exercises }: RecentExercisesListProps) {
                         )}
                         {set.weightKg != null ? (
                           <span>
-                            <span className="font-semibold text-accent">
+                            <span className="font-semibold">
                               {set.weightKg}
                             </span>{" "}
                             <span className="text-muted-foreground">kg</span>
@@ -111,6 +112,6 @@ export function RecentExercisesList({ exercises }: RecentExercisesListProps) {
           </Link>
         ))}
       </div>
-    </div>
+    </section>
   );
 }

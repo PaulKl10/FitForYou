@@ -1,8 +1,8 @@
 import type { SessionGetPayload } from "@/app/generated/prisma/models/Session";
 
-export type RecentSession = SessionGetPayload<{
-  include: { _count: { select: { sets: true } } };
-}>;
+export type RecentSession = SessionGetPayload<Record<string, never>> & {
+  exerciseCount: number;
+};
 
 export interface RecentExerciseSet {
   setNumber: number;
@@ -16,9 +16,16 @@ export interface RecentExercise {
   sets: RecentExerciseSet[];
 }
 
+export interface SessionCalendarEntry {
+  id: string;
+  date: Date;
+  name: string | null;
+}
+
 export interface DashboardViewProps {
   profileName: string;
   recentSessions: RecentSession[];
   recentExercises: RecentExercise[];
   totalSets: number;
+  calendarSessions: SessionCalendarEntry[];
 }

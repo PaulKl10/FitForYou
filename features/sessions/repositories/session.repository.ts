@@ -1,20 +1,29 @@
 import { prisma } from "@/lib/prisma";
 
-export async function getSessionsByUser(userId: string) {
-  const sessions = await prisma.session.findMany({
-    where: { userId },
-    orderBy: { date: "desc" },
-    include: {
-      _count: { select: { sets: true } },
-      sets: {
-        select: { exercise: { select: { nameFr: true } } },
-        distinct: ["exerciseId"],
-        take: 3,
-      },
-    },
-  });
+const SESSIONS_PER_PAGE = 20;
 
-  const sessionIds = sessions.map((s) => s.id);
+export async function getSessionsByUser(userId: string, page = 1) {
+  const skip = (page - 1) * SESSIONS_PER_PAGE;
+
+  const [total, rawSessions] = await Promise.all([
+    prisma.session.count({ where: { userId } }),
+    prisma.session.findMany({
+      where: { userId },
+      orderBy: { date: "desc" },
+      skip,
+      take: SESSIONS_PER_PAGE,
+      include: {
+        _count: { select: { sets: true } },
+        sets: {
+          select: { exercise: { select: { nameFr: true } } },
+          distinct: ["exerciseId"],
+          take: 3,
+        },
+      },
+    }),
+  ]);
+
+  const sessionIds = rawSessions.map((s) => s.id);
   const exerciseCountBySession = new Map<string, number>();
   if (sessionIds.length > 0) {
     const setRows = await prisma.set.findMany({
@@ -35,11 +44,10 @@ export async function getSessionsByUser(userId: string) {
     }
   }
 
-  // Single extra query to know which sessions have at least one filled set
   const filledIds = await prisma.set
     .findMany({
       where: {
-        sessionId: { in: sessions.map((s) => s.id) },
+        sessionId: { in: rawSessions.map((s) => s.id) },
         OR: [{ reps: { not: null } }, { weightKg: { not: null } }],
       },
       select: { sessionId: true },
@@ -47,11 +55,13 @@ export async function getSessionsByUser(userId: string) {
     })
     .then((rows) => new Set(rows.map((r) => r.sessionId)));
 
-  return sessions.map((s) => ({
+  const sessions = rawSessions.map((s) => ({
     ...s,
     hasFilledSets: filledIds.has(s.id),
     exerciseCount: exerciseCountBySession.get(s.id) ?? 0,
   }));
+
+  return { sessions, total, totalPages: Math.ceil(total / SESSIONS_PER_PAGE) };
 }
 
 export async function getSessionById(id: string, userId: string) {

@@ -1,7 +1,7 @@
 import Link from "next/link";
 import Image from "next/image";
 import { Badge } from "@/components/ui/badge";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { FavoriteButton } from "@/features/exercises/components/FavoriteButton";
 import type { Exercise } from "@/features/exercises/types";
 
@@ -12,12 +12,12 @@ interface ExerciseCardProps {
 
 export function ExerciseCard({ exercise, isFavorite }: ExerciseCardProps) {
   return (
-    <div className="rounded-xl bg-linear-to-br from-transparent via-background to-gray-500 p-px transition-transform hover:-translate-y-0.5">
-      <Card className="group h-full ring-0 relative pt-0">
+    <div className="transition-transform hover:-translate-y-0.5">
+      <Card className="group h-full ring-0 relative pt-0 border-border/60">
         {/* Lien étendu sur toute la card */}
         <Link
           href={`/exercises/${exercise.id}`}
-          className="absolute inset-0 z-0 rounded-xl"
+          className="absolute inset-0 z-0 rounded-xl focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
           aria-label={exercise.nameFr}
         />
 
@@ -31,7 +31,7 @@ export function ExerciseCard({ exercise, isFavorite }: ExerciseCardProps) {
         </div>
 
         {exercise.gifUrl && (
-          <div className="relative aspect-square bg-muted overflow-hidden rounded-t-xl">
+          <div className="relative aspect-square bg-muted overflow-hidden rounded-t-xl pointer-events-none">
             <Image
               src={exercise.gifUrl}
               alt={exercise.nameFr}
@@ -43,9 +43,9 @@ export function ExerciseCard({ exercise, isFavorite }: ExerciseCardProps) {
         )}
 
         <CardHeader className="pb-2">
-          <CardTitle className="text-base leading-tight">
+          <h3 className="text-base font-semibold leading-tight">
             {exercise.nameFr}
-          </CardTitle>
+          </h3>
           <p className="text-xs text-muted-foreground">{exercise.nameEn}</p>
         </CardHeader>
 
@@ -54,7 +54,7 @@ export function ExerciseCard({ exercise, isFavorite }: ExerciseCardProps) {
             <Badge className="text-xs bg-primary/15 text-primary border-0">
               {exercise.bodyPart}
             </Badge>
-            <Badge className="text-xs bg-accent/15 text-accent border-0">
+            <Badge className="text-xs bg-accent/15 text-foreground border-0">
               {exercise.targetMuscle}
             </Badge>
             <Badge variant="outline" className="text-xs border-border/60">

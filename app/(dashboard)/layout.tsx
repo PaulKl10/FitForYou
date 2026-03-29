@@ -25,6 +25,13 @@ export default async function DashboardLayout({
   if (!profile) redirect("/login");
 
   return (
+    <>
+    <a
+      href="#main-content"
+      className="sr-only focus:not-sr-only focus:fixed focus:top-4 focus:left-4 focus:z-50 focus:px-4 focus:py-2 focus:bg-background focus:text-foreground focus:rounded-lg focus:shadow-lg focus:outline-none focus:ring-2 focus:ring-ring"
+    >
+      Aller au contenu
+    </a>
     <SidebarProvider>
       <AppSidebar />
       <SidebarInset>
@@ -33,12 +40,13 @@ export default async function DashboardLayout({
           email={user.email ?? ""}
           avatarUrl={profile.avatarUrl}
         />
-        <main className="flex-1 px-4 pt-6 pb-20 md:px-6 md:py-6">
+        <main id="main-content" className="flex-1 px-4 pt-6 pb-20 md:px-6 md:py-6">
           {children}
         </main>
         <MobileNav />
       </SidebarInset>
       <Toaster />
     </SidebarProvider>
+    </>
   );
 }

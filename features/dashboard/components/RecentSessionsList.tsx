@@ -11,9 +11,11 @@ interface RecentSessionsListProps {
 
 export function RecentSessionsList({ sessions }: RecentSessionsListProps) {
   return (
-    <div>
+    <section aria-labelledby="sessions-heading">
       <div className="flex items-center justify-between mb-4">
-        <h2 className="text-lg font-bold">Séances récentes</h2>
+        <h2 id="sessions-heading" className="text-lg font-bold">
+          Séances récentes
+        </h2>
         <Button
           variant="ghost"
           size="sm"
@@ -50,7 +52,8 @@ export function RecentSessionsList({ sessions }: RecentSessionsListProps) {
             <Link
               key={session.id}
               href={`/sessions/${session.id}`}
-              className="flex items-center justify-between p-4 rounded-xl border border-border/60 bg-card hover:border-primary/40 hover:bg-primary/5 transition-all group"
+              aria-label={`Voir la séance ${session.name} du ${new Date(session.date).toLocaleDateString("fr-FR", { weekday: "long", day: "numeric", month: "long" })}`}
+              className="flex items-center justify-between p-4 rounded-xl border border-border/60 bg-card hover:border-primary/40 hover:bg-primary/5 transition-all group focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
             >
               <div className="flex items-center gap-3">
                 <div className="flex items-center justify-center size-9 rounded-lg bg-primary/10 shrink-0">
@@ -78,6 +81,6 @@ export function RecentSessionsList({ sessions }: RecentSessionsListProps) {
           ))}
         </div>
       )}
-    </div>
+    </section>
   );
 }

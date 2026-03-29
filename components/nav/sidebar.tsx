@@ -52,7 +52,7 @@ export function AppSidebar() {
                 return (
                   <SidebarMenuItem key={href}>
                     <SidebarMenuButton
-                      render={(props) => <Link href={href} {...props} />}
+                      render={(props) => <Link href={href} aria-current={isActive ? "page" : undefined} {...props} />}
                       isActive={isActive}
                     >
                       <Icon

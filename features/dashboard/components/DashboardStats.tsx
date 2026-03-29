@@ -1,4 +1,4 @@
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { Calendar, Dumbbell, TrendingUp } from "lucide-react";
 import { formatDistanceToNow } from "date-fns";
 import { fr } from "date-fns/locale";
@@ -20,9 +20,9 @@ export function DashboardStats({
       <Card className="border-border/60">
         <CardHeader>
           <div className="flex items-center justify-between">
-            <CardTitle className="text-sm font-medium text-muted-foreground">
+            <h3 className="text-sm font-medium text-muted-foreground">
               Séances totales
-            </CardTitle>
+            </h3>
             <div className="flex items-center justify-center size-8 rounded-lg bg-primary/15">
               <Calendar className="size-4 text-primary" />
             </div>
@@ -39,9 +39,9 @@ export function DashboardStats({
       <Card className="border-border/60">
         <CardHeader>
           <div className="flex items-center justify-between">
-            <CardTitle className="text-sm font-medium text-muted-foreground">
+            <h3 className="text-sm font-medium text-muted-foreground">
               Séries effectuées
-            </CardTitle>
+            </h3>
             <div className="flex items-center justify-center size-8 rounded-lg bg-accent/15">
               <TrendingUp className="size-4 text-accent" />
             </div>
@@ -58,9 +58,9 @@ export function DashboardStats({
       <Card className="border-border/60">
         <CardHeader>
           <div className="flex items-center justify-between">
-            <CardTitle className="text-sm font-medium text-muted-foreground">
+            <h3 className="text-sm font-medium text-muted-foreground">
               Dernière séance
-            </CardTitle>
+            </h3>
             <div className="flex items-center justify-center size-8 rounded-lg bg-secondary/40">
               <Dumbbell className="size-4 text-muted-foreground" />
             </div>

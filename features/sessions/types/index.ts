@@ -25,6 +25,9 @@ export type ExerciseGroup = {
 
 export interface SessionsViewProps {
   sessions: SessionListItem[];
+  currentPage: number;
+  totalPages: number;
+  total: number;
 }
 
 export interface SessionDetailViewProps {

@@ -93,7 +93,7 @@ export function ExercisesFilters({
   };
 
   return (
-    <div className="flex justify-between gap-2 sticky top-0 bg-background z-50 py-2 flex-wrap">
+    <div className="sticky top-14 z-30 flex flex-wrap justify-between gap-2 bg-background py-2">
       <div className="flex flex-col md:flex-row gap-2">
         <FilterSearchInput
           name="q"

@@ -20,7 +20,7 @@ export function DashboardHeader({ profileName }: DashboardHeaderProps) {
           Prêt pour ta séance du jour ?
         </p>
       </div>
-      <Button render={<Link href="/sessions/new" />} nativeButton={false}>
+      <Button render={<Link href="/sessions/new" />} nativeButton={false} className="hidden md:flex">
         <Plus className="size-4" />
         Nouvelle séance
       </Button>
