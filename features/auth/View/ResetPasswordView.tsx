@@ -1,8 +1,7 @@
 "use client";
 
 import { useState, useTransition } from "react";
-import Link from "next/link";
-import { login } from "@/features/auth/services/auth";
+import { updatePassword } from "@/features/auth/services/auth";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -16,14 +15,28 @@ import {
 } from "@/components/ui/card";
 import { Dumbbell } from "lucide-react";
 
-export function LoginView() {
+export function ResetPasswordView() {
   const [error, setError] = useState<string | null>(null);
   const [isPending, startTransition] = useTransition();
 
   function handleSubmit(formData: FormData) {
     setError(null);
+
+    const password = formData.get("password") as string;
+    const confirm = formData.get("confirm") as string;
+
+    if (password !== confirm) {
+      setError("Les mots de passe ne correspondent pas.");
+      return;
+    }
+
+    if (password.length < 6) {
+      setError("Le mot de passe doit faire au moins 6 caractères.");
+      return;
+    }
+
     startTransition(async () => {
-      const result = await login(formData);
+      const result = await updatePassword(formData);
       if (result?.error) setError(result.error);
     });
   }
@@ -48,11 +61,9 @@ export function LoginView() {
         <Card className="border-border/60 pt-4">
           <CardHeader className="pb-2">
             <CardTitle className="text-xl font-semibold font-sans">
-              Connexion
+              Nouveau mot de passe
             </CardTitle>
-            <CardDescription>
-              Accède à tes séances
-            </CardDescription>
+            <CardDescription>Choisis un nouveau mot de passe</CardDescription>
           </CardHeader>
           <form
             onSubmit={(event) => {
@@ -67,63 +78,43 @@ export function LoginView() {
                 </p>
               )}
               <div className="space-y-1">
-                <Label htmlFor="email" className="text-sm font-semibold">
-                  Email
+                <Label htmlFor="password" className="text-sm font-semibold">
+                  Nouveau mot de passe
                 </Label>
-                <Input
-                  id="email"
-                  name="email"
-                  type="email"
-                  placeholder="tu@exemple.com"
-                  required
-                  autoComplete="email"
-                  className="h-9 bg-card font-semibold font-sans"
-                />
-              </div>
-              <div className="space-y-1">
-                <div className="flex items-center justify-between">
-                  <Label htmlFor="password" className="text-sm font-semibold">
-                    Mot de passe
-                  </Label>
-                  <Button
-                    variant="link"
-                    render={<Link href="/forgot-password" />}
-                    nativeButton={false}
-                    className="px-0 h-auto text-xs text-muted-foreground hover:text-primary"
-                  >
-                    Mot de passe oublié ?
-                  </Button>
-                </div>
                 <Input
                   id="password"
                   name="password"
                   type="password"
                   required
-                  autoComplete="current-password"
+                  minLength={6}
+                  autoComplete="new-password"
+                  className="h-9 bg-card"
+                />
+              </div>
+              <div className="space-y-1">
+                <Label htmlFor="confirm" className="text-sm font-semibold">
+                  Confirmer le mot de passe
+                </Label>
+                <Input
+                  id="confirm"
+                  name="confirm"
+                  type="password"
+                  required
+                  minLength={6}
+                  autoComplete="new-password"
                   className="h-9 bg-card"
                 />
               </div>
             </CardContent>
-            <CardFooter className="flex flex-col gap-4 pt-4">
+            <CardFooter className="pt-4">
               <Button
                 type="submit"
                 nativeButton
                 className="w-full font-semibold py-5 cursor-pointer hover:bg-primary/80"
                 disabled={isPending}
               >
-                {isPending ? "Connexion..." : "Se connecter"}
+                {isPending ? "Mise à jour..." : "Mettre à jour"}
               </Button>
-              <p className="text-sm text-muted-foreground text-center">
-                Pas encore de compte ?{" "}
-                <Button
-                  variant="link"
-                  render={<Link href="/signup" />}
-                  nativeButton={false}
-                  className="px-0 h-auto font-semibold text-primary"
-                >
-                  Créer un compte
-                </Button>
-              </p>
             </CardFooter>
           </form>
         </Card>
