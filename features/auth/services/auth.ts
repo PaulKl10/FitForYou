@@ -1,15 +1,38 @@
 "use server";
 
 import { redirect } from "next/navigation";
+import { z } from "zod";
 import { createClient } from "@/lib/supabase/server";
+
+const LoginSchema = z.object({
+  email: z.email(),
+  password: z.string().check(z.minLength(1)),
+});
+
+const SignupSchema = z.object({
+  email: z.email(),
+  password: z.string().check(z.minLength(6), z.maxLength(128)),
+  name: z.string().check(z.minLength(1), z.maxLength(100)),
+});
+
+const EmailSchema = z.object({
+  email: z.email(),
+});
+
+const PasswordSchema = z.object({
+  password: z.string().check(z.minLength(6), z.maxLength(128)),
+});
 
 export async function login(formData: FormData) {
   const supabase = await createClient();
 
-  const email = formData.get("email") as string;
-  const password = formData.get("password") as string;
+  const parsed = LoginSchema.safeParse({
+    email: formData.get("email"),
+    password: formData.get("password"),
+  });
+  if (!parsed.success) return { error: "Données invalides." };
 
-  const { error } = await supabase.auth.signInWithPassword({ email, password });
+  const { error } = await supabase.auth.signInWithPassword(parsed.data);
 
   if (error) {
     return { error: error.message };
@@ -21,10 +44,14 @@ export async function login(formData: FormData) {
 export async function signup(formData: FormData) {
   const supabase = await createClient();
 
-  const email = formData.get("email") as string;
-  const password = formData.get("password") as string;
-  const name = formData.get("name") as string;
+  const parsed = SignupSchema.safeParse({
+    email: formData.get("email"),
+    password: formData.get("password"),
+    name: formData.get("name"),
+  });
+  if (!parsed.success) return { error: "Données invalides." };
 
+  const { email, password, name } = parsed.data;
   const { data, error } = await supabase.auth.signUp({ email, password });
 
   if (error) {
@@ -53,10 +80,13 @@ export async function logout() {
 export async function resetPassword(formData: FormData) {
   const supabase = await createClient();
 
-  const email = formData.get("email") as string;
-  const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || "http://localhost:3000";
+  const parsed = EmailSchema.safeParse({ email: formData.get("email") });
+  if (!parsed.success) return { error: "Adresse email invalide." };
 
-  const { error } = await supabase.auth.resetPasswordForEmail(email, {
+  const siteUrl = process.env.NEXT_PUBLIC_SITE_URL;
+  if (!siteUrl) return { error: "Configuration serveur manquante." };
+
+  const { error } = await supabase.auth.resetPasswordForEmail(parsed.data.email, {
     redirectTo: `${siteUrl}/reset-password`,
   });
 
@@ -70,9 +100,10 @@ export async function resetPassword(formData: FormData) {
 export async function updatePassword(formData: FormData) {
   const supabase = await createClient();
 
-  const password = formData.get("password") as string;
+  const parsed = PasswordSchema.safeParse({ password: formData.get("password") });
+  if (!parsed.success) return { error: "Mot de passe invalide (6 caractères minimum)." };
 
-  const { error } = await supabase.auth.updateUser({ password });
+  const { error } = await supabase.auth.updateUser({ password: parsed.data.password });
 
   if (error) {
     return { error: error.message };
