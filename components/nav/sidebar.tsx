@@ -1,9 +1,9 @@
 "use client";
 
+import Image from "next/image";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import {
-  Dumbbell,
   LayoutDashboard,
   BookOpen,
   History,
@@ -35,10 +35,20 @@ export function AppSidebar() {
     <Sidebar>
       <SidebarHeader>
         <div className="flex items-center gap-2 px-2 py-1">
-          <div className="flex items-center justify-center size-8 rounded-lg bg-primary text-primary-foreground shrink-0">
-            <Dumbbell className="size-4" />
-          </div>
-          <span className="font-bold text-base">FitForYou</span>
+          <Image
+            src="/fit-for-you-01.png"
+            alt="FitForYou logo"
+            width={32}
+            height={32}
+            className="rounded-lg shrink-0"
+          />
+          <Image
+            src="/fit-for-you-04.png"
+            alt="Fit For You"
+            width={96}
+            height={24}
+            className="dark:invert h-8! w-auto max-w-none object-contain object-left shrink-0"
+          />
         </div>
       </SidebarHeader>
 

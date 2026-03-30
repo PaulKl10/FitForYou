@@ -21,6 +21,12 @@ export const metadata: Metadata = {
     follow: false,
     googleBot: { index: false, follow: false },
   },
+  themeColor: "#f26522",
+  appleWebApp: {
+    capable: true,
+    statusBarStyle: "default",
+    title: "Fit For You",
+  },
 };
 
 export default function RootLayout({
