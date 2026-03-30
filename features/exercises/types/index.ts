@@ -10,6 +10,7 @@ export type Muscle = MuscleGetPayload<{}>;
 export interface ExerciseProgressPoint {
   date: Date;
   maxWeightKg: number | null;
+  maxReps: number | null;
   sessionName: string | null;
 }
 

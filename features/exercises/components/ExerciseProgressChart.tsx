@@ -25,22 +25,85 @@ function CustomTooltip({
   active,
   payload,
   label,
+  unit,
 }: {
   active?: boolean;
   payload?: TooltipPayload[];
   label?: string;
+  unit: string;
 }) {
   if (!active || !payload?.length) return null;
   return (
     <div className="rounded-lg border border-border bg-background px-3 py-2 text-sm shadow-md">
       <p className="text-muted-foreground">{label}</p>
-      <p className="font-semibold">{payload[0].value} kg</p>
+      <p className="font-semibold">
+        {payload[0].value} {unit}
+      </p>
     </div>
   );
 }
 
 export function ExerciseProgressChart({ progress }: ExerciseProgressChartProps) {
   const withWeight = progress.filter((p) => p.maxWeightKg != null);
+  const isBodyweight = withWeight.length === 0;
+
+  if (isBodyweight) {
+    const withReps = progress.filter((p) => p.maxReps != null);
+
+    if (withReps.length < 2) {
+      return (
+        <p className="text-sm text-muted-foreground text-center py-6">
+          Fais au moins 2 séances pour voir ta progression.
+        </p>
+      );
+    }
+
+    const data = withReps.map((p) => ({
+      date: format(new Date(p.date), "d MMM", { locale: fr }),
+      valeur: p.maxReps as number,
+    }));
+
+    const values = data.map((d) => d.valeur);
+    const min = Math.max(0, Math.floor(Math.min(...values)) - 1);
+    const max = Math.ceil(Math.max(...values)) + 1;
+
+    return (
+      <ResponsiveContainer width="100%" height={180}>
+        <AreaChart data={data} margin={{ top: 4, right: 4, left: -20, bottom: 0 }}>
+          <defs>
+            <linearGradient id="progressGradient" x1="0" y1="0" x2="0" y2="1">
+              <stop offset="5%" stopColor="var(--color-primary)" stopOpacity={0.2} />
+              <stop offset="95%" stopColor="var(--color-primary)" stopOpacity={0} />
+            </linearGradient>
+          </defs>
+          <CartesianGrid strokeDasharray="3 3" stroke="var(--color-border)" vertical={false} />
+          <XAxis
+            dataKey="date"
+            tick={{ fontSize: 11, fill: "var(--color-muted-foreground)" }}
+            tickLine={false}
+            axisLine={false}
+          />
+          <YAxis
+            domain={[min, max]}
+            allowDecimals={false}
+            tick={{ fontSize: 11, fill: "var(--color-muted-foreground)" }}
+            tickLine={false}
+            axisLine={false}
+          />
+          <Tooltip content={<CustomTooltip unit="reps" />} />
+          <Area
+            type="monotone"
+            dataKey="valeur"
+            stroke="var(--color-primary)"
+            strokeWidth={2}
+            fill="url(#progressGradient)"
+            dot={{ r: 3, fill: "var(--color-primary)", strokeWidth: 0 }}
+            activeDot={{ r: 5, fill: "var(--color-primary)", strokeWidth: 0 }}
+          />
+        </AreaChart>
+      </ResponsiveContainer>
+    );
+  }
 
   if (withWeight.length < 2) {
     return (
@@ -52,11 +115,10 @@ export function ExerciseProgressChart({ progress }: ExerciseProgressChartProps) 
 
   const data = withWeight.map((p) => ({
     date: format(new Date(p.date), "d MMM", { locale: fr }),
-    poids: p.maxWeightKg as number,
-    session: p.sessionName,
+    valeur: p.maxWeightKg as number,
   }));
 
-  const values = data.map((d) => d.poids);
+  const values = data.map((d) => d.valeur);
   const min = Math.max(0, Math.floor(Math.min(...values)) - 2);
   const max = Math.ceil(Math.max(...values)) + 2;
 
@@ -81,12 +143,11 @@ export function ExerciseProgressChart({ progress }: ExerciseProgressChartProps) 
           tick={{ fontSize: 11, fill: "var(--color-muted-foreground)" }}
           tickLine={false}
           axisLine={false}
-          tickFormatter={(v) => `${v}`}
         />
-        <Tooltip content={<CustomTooltip />} />
+        <Tooltip content={<CustomTooltip unit="kg" />} />
         <Area
           type="monotone"
-          dataKey="poids"
+          dataKey="valeur"
           stroke="var(--color-primary)"
           strokeWidth={2}
           fill="url(#progressGradient)"

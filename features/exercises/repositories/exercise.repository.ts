@@ -84,15 +84,16 @@ export async function getExerciseProgress(exerciseId: string, userId: string) {
     where: { exerciseId, session: { userId } },
     select: {
       weightKg: true,
+      reps: true,
       session: { select: { id: true, date: true, name: true } },
     },
     orderBy: { session: { date: "asc" } },
   });
 
-  // Group by session, keep max weight per session
+  // Group by session, keep max weight and max reps per session
   const map = new Map<
     string,
-    { date: Date; maxWeightKg: number | null; sessionName: string | null }
+    { date: Date; maxWeightKg: number | null; maxReps: number | null; sessionName: string | null }
   >();
   for (const set of sets) {
     const key = set.session.id;
@@ -100,12 +101,16 @@ export async function getExerciseProgress(exerciseId: string, userId: string) {
       map.set(key, {
         date: set.session.date,
         maxWeightKg: set.weightKg,
+        maxReps: set.reps,
         sessionName: set.session.name,
       });
     } else {
       const cur = map.get(key)!;
       if (set.weightKg != null && (cur.maxWeightKg == null || set.weightKg > cur.maxWeightKg)) {
         cur.maxWeightKg = set.weightKg;
+      }
+      if (set.reps != null && (cur.maxReps == null || set.reps > cur.maxReps)) {
+        cur.maxReps = set.reps;
       }
     }
   }
