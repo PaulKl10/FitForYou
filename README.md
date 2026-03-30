@@ -1,36 +1,89 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# FitForYou
 
-## Getting Started
+Application web de suivi de séances de gym — créez vos workouts, parcourez une bibliothèque d'exercices, et suivez votre progression dans le temps.
 
-First, run the development server:
+## Fonctionnalités
+
+- **Tableau de bord** — vue d'ensemble des sessions récentes, exercices favoris, calendrier d'activité et compteur de séries
+- **Bibliothèque d'exercices** — 500+ exercices filtrables par groupe musculaire, équipement et difficulté, avec favoris
+- **Gestion des séances** — créez, éditez, dupliquez et supprimez vos workouts avec le détail des exercices, séries, répétitions et charges
+- **Suivi du poids** — enregistrez votre poids et visualisez votre progression avec un graphique historique + calcul IMC
+- **Profil** — personnalisez votre avatar, votre nom et vos mensurations
+- **Authentification** — inscription, connexion, réinitialisation de mot de passe via Supabase Auth
+
+## Stack technique
+
+| Couche | Technologies |
+|---|---|
+| Frontend | Next.js 16 (App Router), React 19, TypeScript 5 |
+| Style | Tailwind CSS v4, shadcn/ui, Lucide React |
+| Backend | Supabase (PostgreSQL + Auth), Prisma 7 |
+| Formulaires | TanStack React Form, Zod |
+| Visualisation | Recharts |
+| Divers | DND Kit, Sonner, next-themes, date-fns |
+
+## Démarrage
+
+### Prérequis
+
+- Node.js 20+
+- pnpm
+- Un projet [Supabase](https://supabase.com)
+
+### Installation
 
 ```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+git clone https://github.com/<your-username>/fitforyou.git
+cd fitforyou
+pnpm install
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+### Variables d'environnement
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+Créez un fichier `.env` à la racine :
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+```env
+# Connexion poolée (runtime)
+DATABASE_URL="postgresql://[user]:[password]@[host]:6543/postgres?pgbouncer=true"
 
-## Learn More
+# Connexion directe (migrations Prisma)
+DIRECT_URL="postgresql://[user]:[password]@[host]:5432/postgres"
 
-To learn more about Next.js, take a look at the following resources:
+# Supabase
+NEXT_PUBLIC_SUPABASE_URL="https://[project].supabase.co"
+NEXT_PUBLIC_SUPABASE_ANON_KEY="eyJ..."
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+# URL de l'application (redirections auth)
+NEXT_PUBLIC_SITE_URL="http://localhost:3000"
+```
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+### Base de données
 
-## Deploy on Vercel
+```bash
+# Appliquer le schéma Prisma
+pnpm prisma migrate dev
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+# Peupler les exercices
+pnpm prisma db seed
+```
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+### Lancer en développement
+
+```bash
+pnpm dev
+```
+
+Ouvrez [http://localhost:3000](http://localhost:3000).
+
+## Architecture
+
+Le projet suit une séparation stricte en quatre couches :
+
+```
+app/            → routes minimalistes (3-5 lignes)
+screens/        → Server Components d'orchestration (fetch + composition)
+features/       → domaines métier (View / services / repositories / types)
+components/     → composants UI réutilisables (shadcn/ui + nav)
+```
+
+Les accès Prisma sont exclusivement dans les `repositories/`, les Server Actions dans les `services/`.
