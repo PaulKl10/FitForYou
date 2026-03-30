@@ -29,7 +29,7 @@ export function Header({ name, email, avatarUrl }: HeaderProps) {
             alt="Fit For You"
             width={96}
             height={24}
-            className="dark:invert"
+            className="dark:invert h-20! w-auto max-w-none object-contain object-left shrink-0"
           />
         </div>
         <SidebarTrigger className="-ml-1 hidden md:block" />
