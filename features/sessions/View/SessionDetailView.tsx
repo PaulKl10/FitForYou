@@ -56,14 +56,22 @@ export function SessionDetailView({
               {exerciseGroups.length > 1 ? "s" : ""}
             </Badge>
             {session.durationMinutes && (
-              <span className="flex items-center gap-1.5 text-sm text-muted-foreground">
+              <div className="flex items-center gap-1.5 text-sm text-muted-foreground flex-nowrap">
                 <Clock className="size-3.5" />
-                {session.durationMinutes} min
-              </span>
+                <span className="text-sm text-muted-foreground">
+                  {session.durationMinutes}
+                </span>
+                <span className="text-sm text-muted-foreground">min</span>
+              </div>
             )}
-            <span className="text-sm text-muted-foreground">
-              {session.sets.length} série{session.sets.length > 1 ? "s" : ""}
-            </span>
+            <div className="flex items-center gap-1.5 text-sm text-muted-foreground flex-nowrap">
+              <span className="text-sm text-muted-foreground">
+                {session.sets.length}
+              </span>
+              <span className="text-sm text-muted-foreground">
+                série{session.sets.length > 1 ? "s" : ""}
+              </span>
+            </div>
           </div>
         </div>
         <div className="flex items-center gap-1 mt-1 shrink-0">

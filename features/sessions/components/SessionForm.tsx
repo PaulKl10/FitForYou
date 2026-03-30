@@ -201,7 +201,6 @@ export function SessionForm({
     }[],
   ) {
     form.setFieldValue("exercises", [
-      ...exercises,
       ...picked.map((ex) => ({
         exerciseId: ex.id,
         nameFr: ex.nameFr,
@@ -209,6 +208,7 @@ export function SessionForm({
         equipment: ex.equipment,
         sets: [{ reps: "", weightKg: "" }],
       })),
+      ...exercises,
     ]);
   }
 

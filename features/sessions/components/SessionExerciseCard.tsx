@@ -56,7 +56,7 @@ export function SessionExerciseCard({
           <p className="text-xs text-muted-foreground">{exercise.targetMuscle}</p>
         </div>
         {exercise.equipment && (
-          <Badge variant="outline" className="text-xs border-border/60 shrink-0">
+          <Badge variant="default" className="text-xs border-border/60 shrink-0">
             {exercise.equipment}
           </Badge>
         )}
@@ -102,7 +102,7 @@ export function SessionExerciseCard({
                     value={set.reps}
                     onChange={(e) => onSetChange(i, "reps", e.target.value)}
                     aria-invalid={!!err?.reps}
-                    className={cn("h-8 text-sm", err?.reps && "border-destructive focus-visible:ring-destructive")}
+                    className={cn("h-8 text-base", err?.reps && "border-destructive focus-visible:ring-destructive")}
                   />
                   {err?.reps && (
                     <p className="text-xs text-destructive">{err.reps}</p>
@@ -117,7 +117,7 @@ export function SessionExerciseCard({
                     value={set.weightKg}
                     onChange={(e) => onSetChange(i, "weightKg", e.target.value)}
                     aria-invalid={!!err?.weightKg}
-                    className={cn("h-8 text-sm", err?.weightKg && "border-destructive focus-visible:ring-destructive")}
+                    className={cn("h-8 text-base", err?.weightKg && "border-destructive focus-visible:ring-destructive")}
                   />
                   {err?.weightKg && (
                     <p className="text-xs text-destructive">{err.weightKg}</p>
