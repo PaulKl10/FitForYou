@@ -16,11 +16,16 @@ function buildWhere(filters: ExerciseFilters, favoriteIds: string[]) {
     ...(muscle && muscle.length > 0 && { targetMuscle: { in: muscle } }),
     ...(equipment && equipment.length > 0 && { equipment: { in: equipment } }),
     ...(q && {
-      OR: [
-        { nameFr: { contains: q, mode: "insensitive" as const } },
-        { nameEn: { contains: q, mode: "insensitive" as const } },
-        { bodyPart: { contains: q, mode: "insensitive" as const } },
-      ],
+      AND: q
+        .trim()
+        .split(/\s+/)
+        .map((word) => ({
+          OR: [
+            { nameFr: { contains: word, mode: "insensitive" as const } },
+            { nameEn: { contains: word, mode: "insensitive" as const } },
+            { bodyPart: { contains: word, mode: "insensitive" as const } },
+          ],
+        })),
     }),
   };
 }
