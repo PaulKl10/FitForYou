@@ -40,7 +40,7 @@ export default async function DashboardLayout({
           email={user.email ?? ""}
           avatarUrl={profile.avatarUrl}
         />
-        <main id="main-content" className="flex-1 px-4 pt-6 pb-20 md:px-6 md:py-6">
+        <main id="main-content" className="flex-1 px-4 pt-6 pb-24 md:px-6 md:py-6">
           {children}
         </main>
         <MobileNav />
