@@ -23,6 +23,9 @@ export const metadata: Metadata = {
     googleBot: { index: false, follow: false },
   },
   themeColor: "#f26522",
+  icons: {
+    apple: "/fit-for-you-01.png",
+  },
   appleWebApp: {
     capable: true,
     statusBarStyle: "default",

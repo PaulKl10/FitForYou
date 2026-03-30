@@ -19,7 +19,13 @@ export default function manifest(): MetadataRoute.Manifest {
       },
       {
         src: "/fit-for-you-02.png",
-        sizes: "513x513",
+        sizes: "512x512",
+        type: "image/png",
+        purpose: "any",
+      },
+      {
+        src: "/fit-for-you-02.png",
+        sizes: "512x512",
         type: "image/png",
         purpose: "maskable",
       },
