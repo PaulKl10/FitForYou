@@ -4,10 +4,16 @@ import { Dumbbell, Plus, Trash2, X } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { cn } from "@/lib/utils";
 
 export interface SetData {
   reps: string;
   weightKg: string;
+}
+
+export interface SetFieldErrors {
+  reps?: string;
+  weightKg?: string;
 }
 
 export interface SessionExerciseData {
@@ -25,6 +31,7 @@ interface SessionExerciseCardProps {
   onAddSet: () => void;
   onRemoveSet: (setIndex: number) => void;
   dragHandle?: React.ReactNode;
+  setErrors?: SetFieldErrors[];
 }
 
 export function SessionExerciseCard({
@@ -34,6 +41,7 @@ export function SessionExerciseCard({
   onAddSet,
   onRemoveSet,
   dragHandle,
+  setErrors,
 }: SessionExerciseCardProps) {
   return (
     <div className="rounded-xl border border-border/60 bg-card overflow-hidden">
@@ -75,40 +83,60 @@ export function SessionExerciseCard({
           </div>
         )}
 
-        {exercise.sets.map((set, i) => (
-          <div key={i} className="grid grid-cols-[2rem_1fr_1fr_2rem] items-center gap-2">
-            <span className="flex items-center justify-center size-6 rounded-md bg-primary/10 text-primary text-xs font-bold mx-auto">
-              {i + 1}
-            </span>
-            <Input
-              type="number"
-              min="0"
-              placeholder="—"
-              value={set.reps}
-              onChange={(e) => onSetChange(i, "reps", e.target.value)}
-              className="h-8 text-sm"
-            />
-            <Input
-              type="number"
-              min="0"
-              step="0.5"
-              placeholder="—"
-              value={set.weightKg}
-              onChange={(e) => onSetChange(i, "weightKg", e.target.value)}
-              className="h-8 text-sm"
-            />
-            <Button
-              type="button"
-              variant="ghost"
-              size="icon"
-              className="size-7 text-muted-foreground hover:text-destructive"
-              onClick={() => onRemoveSet(i)}
-              aria-label="Supprimer la série"
-            >
-              <X className="size-3.5" />
-            </Button>
-          </div>
-        ))}
+        {exercise.sets.map((set, i) => {
+          const err = setErrors?.[i];
+          const hasError = !!(err?.reps || err?.weightKg);
+
+          return (
+            <div key={i} className="space-y-1">
+              <div className={cn("grid grid-cols-[2rem_1fr_1fr_2rem] gap-2", hasError ? "items-start" : "items-center")}>
+                <span className={cn("flex items-center justify-center size-6 rounded-md bg-primary/10 text-primary text-xs font-bold mx-auto", hasError && "mt-1")}>
+                  {i + 1}
+                </span>
+                <div className="space-y-1">
+                  <Input
+                    type="text"
+                    inputMode="numeric"
+                    pattern="[0-9]*"
+                    placeholder="—"
+                    value={set.reps}
+                    onChange={(e) => onSetChange(i, "reps", e.target.value)}
+                    aria-invalid={!!err?.reps}
+                    className={cn("h-8 text-sm", err?.reps && "border-destructive focus-visible:ring-destructive")}
+                  />
+                  {err?.reps && (
+                    <p className="text-xs text-destructive">{err.reps}</p>
+                  )}
+                </div>
+                <div className="space-y-1">
+                  <Input
+                    type="text"
+                    inputMode="decimal"
+                    pattern="[0-9]*[.,]?[0-9]*"
+                    placeholder="—"
+                    value={set.weightKg}
+                    onChange={(e) => onSetChange(i, "weightKg", e.target.value)}
+                    aria-invalid={!!err?.weightKg}
+                    className={cn("h-8 text-sm", err?.weightKg && "border-destructive focus-visible:ring-destructive")}
+                  />
+                  {err?.weightKg && (
+                    <p className="text-xs text-destructive">{err.weightKg}</p>
+                  )}
+                </div>
+                <Button
+                  type="button"
+                  variant="ghost"
+                  size="icon"
+                  className={cn("size-7 text-muted-foreground hover:text-destructive", hasError && "mt-1")}
+                  onClick={() => onRemoveSet(i)}
+                  aria-label="Supprimer la série"
+                >
+                  <X className="size-3.5" />
+                </Button>
+              </div>
+            </div>
+          );
+        })}
 
         <Button
           type="button"
