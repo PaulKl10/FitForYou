@@ -2,7 +2,7 @@
 
 import { useEffect } from "react";
 import Link from "next/link";
-import { Button } from "@/components/ui/button";
+import { buttonVariants } from "@/components/ui/button";
 
 export default function AuthError({
   error,
@@ -20,9 +20,9 @@ export default function AuthError({
       <p className="text-muted-foreground text-sm max-w-sm">
         Une erreur est survenue. Retourne à la page de connexion.
       </p>
-      <Button asChild>
-        <Link href="/login">Retour à la connexion</Link>
-      </Button>
+      <Link href="/login" className={buttonVariants()}>
+        Retour à la connexion
+      </Link>
     </div>
   );
 }
