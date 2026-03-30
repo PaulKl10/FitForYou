@@ -8,7 +8,7 @@ const positiveIntegerString = z
 
 const positiveDecimalString = z
   .string()
-  .refine((v) => v === "" || /^\d*\.?\d*$/.test(v), {
+  .refine((v) => v === "" || /^\d*[.,]?\d*$/.test(v), {
     message: "Nombre positif requis",
   });
 

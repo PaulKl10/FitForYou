@@ -49,7 +49,7 @@ export function EditSessionView({ session }: EditSessionViewProps) {
           exerciseId: ex.exerciseId,
           sets: ex.sets.map((s) => ({
             reps: s.reps ? Number(s.reps) : undefined,
-            weightKg: s.weightKg ? Number(s.weightKg) : undefined,
+            weightKg: s.weightKg ? Number(s.weightKg.replace(",", ".")) : undefined,
           })),
         })),
       });
