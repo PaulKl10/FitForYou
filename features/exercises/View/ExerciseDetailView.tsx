@@ -1,10 +1,13 @@
-import Image from "next/image";
+import { ExerciseGif } from "@/features/exercises/components/ExerciseGif";
 import Link from "next/link";
 import { ArrowLeft } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { FavoriteButton } from "@/features/exercises/components/FavoriteButton";
 import { ExerciseProgressChart } from "@/features/exercises/components/ExerciseProgressChart";
-import type { ExerciseWithMuscles, ExerciseProgressPoint } from "@/features/exercises/types";
+import type {
+  ExerciseWithMuscles,
+  ExerciseProgressPoint,
+} from "@/features/exercises/types";
 
 interface ExerciseDetailViewProps {
   exercise: ExerciseWithMuscles;
@@ -44,7 +47,7 @@ export function ExerciseDetailView({
   ].filter((m) => m.value);
 
   return (
-    <div className="space-y-8">
+    <div className="space-y-8 max-w-7xl">
       {/* Back */}
       <Link
         href="/exercises"
@@ -69,15 +72,12 @@ export function ExerciseDetailView({
       <div className="flex flex-col gap-4 md:flex-row">
         {exercise.gifUrl && (
           <div className="flex-1 px-4">
-            <div className="relative aspect-video max-w-[600px] flex-1 rounded-2xl overflow-hidden">
-              <Image
-                src={exercise.gifUrl}
-                alt={exercise.nameFr}
-                fill
-                unoptimized
-                className="object-cover"
-              />
-            </div>
+            <ExerciseGif
+              src={exercise.gifUrl}
+              alt={exercise.nameFr}
+              className="aspect-square max-w-[600px] rounded-2xl overflow-hidden"
+              animated
+            />
           </div>
         )}
         {/* Meta badges */}
@@ -141,6 +141,17 @@ export function ExerciseDetailView({
         </div>
       </div>
 
+      {/* Progress chart */}
+      <div className="space-y-3">
+        <h2 className="text-lg font-bold">Ma progression</h2>
+        <p className="text-sm text-muted-foreground">
+          Poids maximum soulevé par séance
+        </p>
+        <div className="rounded-xl border border-border/60 bg-card p-4">
+          <ExerciseProgressChart progress={progress} />
+        </div>
+      </div>
+
       {/* Instructions */}
       {instructions.length > 0 && (
         <div className="space-y-3">
@@ -159,17 +170,6 @@ export function ExerciseDetailView({
           </ol>
         </div>
       )}
-
-      {/* Progress chart */}
-      <div className="space-y-3">
-        <h2 className="text-lg font-bold">Ma progression</h2>
-        <p className="text-sm text-muted-foreground">
-          Poids maximum soulevé par séance
-        </p>
-        <div className="rounded-xl border border-border/60 bg-card p-4">
-          <ExerciseProgressChart progress={progress} />
-        </div>
-      </div>
     </div>
   );
 }

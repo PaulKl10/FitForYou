@@ -1,26 +1,20 @@
 import { PrismaClient } from "../app/generated/prisma/client";
 import { PrismaPg } from "@prisma/adapter-pg";
-import exercisesData from "../lib/exercises-fr-corrected.json";
+import exercisesData from "../lib/exercises-fr-final.json";
 
 interface RawExercise {
   id: string;
   name: string;
-  force: string | null;
-  level: string;
-  mechanic: string | null;
-  equipment: string | null;
+  name_en: string;
+  gifUrl: string;
   primaryMuscles: string[];
   secondaryMuscles: string[];
+  bodyParts: string[];
+  equipments: string[];
   instructions: string[];
-  category: string;
-  images: string[];
 }
 
 const exercises = exercisesData as RawExercise[];
-
-function humanizeId(id: string): string {
-  return id.replace(/_/g, " ");
-}
 
 async function main() {
   const connectionString = process.env.DATABASE_URL!;
@@ -28,6 +22,8 @@ async function main() {
   const prisma = new PrismaClient({ adapter });
 
   console.log("🧹 Nettoyage des données existantes...");
+  await prisma.set.deleteMany();
+  await prisma.favoriteExercise.deleteMany();
   await prisma.exerciseMuscle.deleteMany();
   await prisma.exercise.deleteMany();
   await prisma.muscle.deleteMany();
@@ -54,18 +50,16 @@ async function main() {
     data: exercises.map((ex) => ({
       externalId: ex.id,
       nameFr: ex.name,
-      nameEn: humanizeId(ex.id),
-      category: ex.category,
-      bodyPart: ex.category,
+      nameEn: ex.name_en,
+      category: ex.bodyParts[0] ?? "",
+      bodyPart: ex.bodyParts[0] ?? "",
       targetMuscle: ex.primaryMuscles[0] ?? "",
-      equipment: ex.equipment ?? null,
-      level: ex.level ?? null,
-      force: ex.force ?? null,
-      mechanic: ex.mechanic ?? null,
+      equipment: ex.equipments[0] ?? null,
+      level: null,
+      force: null,
+      mechanic: null,
       instructionsFr: ex.instructions.join("\n") ?? null,
-      gifUrl: ex.images[0]
-        ? `https://raw.githubusercontent.com/yuhonas/free-exercise-db/main/exercises/${ex.images[0]}`
-        : null,
+      gifUrl: ex.gifUrl ?? null,
     })),
   });
   console.log(`  → ${exercises.length} exercices créés`);
@@ -78,7 +72,11 @@ async function main() {
 
   // ── 4. Créer les relations exercice ↔ muscle ────────────────────────────
   console.log("🔗 Création des relations exercice ↔ muscle...");
-  const exerciseMuscleData: { exerciseId: string; muscleId: string; isPrimary: boolean }[] = [];
+  const exerciseMuscleData: {
+    exerciseId: string;
+    muscleId: string;
+    isPrimary: boolean;
+  }[] = [];
 
   for (const ex of exercises) {
     const exerciseId = exerciseMap.get(ex.id);
@@ -91,7 +89,6 @@ async function main() {
       if (muscleId) exerciseMuscleData.push({ exerciseId, muscleId, isPrimary: true });
     }
     for (const muscle of ex.secondaryMuscles) {
-      // Skip if already in primary (avoids composite key conflict)
       if (primarySet.has(muscle)) continue;
       const muscleId = muscleMap.get(muscle);
       if (muscleId) exerciseMuscleData.push({ exerciseId, muscleId, isPrimary: false });

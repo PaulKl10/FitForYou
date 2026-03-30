@@ -17,7 +17,7 @@ import {
   Dumbbell,
   Plus,
 } from "lucide-react";
-import Image from "next/image";
+import { ExerciseGif } from "@/features/exercises/components/ExerciseGif";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -299,14 +299,12 @@ export function ExercisePickerModal({
                         )}
                       >
                         {/* GIF / placeholder */}
-                        <div className="relative aspect-square bg-muted/50 overflow-hidden">
+                        <div className="aspect-square bg-muted/50 overflow-hidden">
                           {exercise.gifUrl ? (
-                            <Image
+                            <ExerciseGif
                               src={exercise.gifUrl}
                               alt={exercise.nameFr}
-                              fill
-                              className="object-cover"
-                              unoptimized
+                              className="w-full h-full"
                             />
                           ) : (
                             <div className="flex items-center justify-center h-full">

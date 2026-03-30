@@ -1,5 +1,5 @@
 import Link from "next/link";
-import Image from "next/image";
+import { ExerciseGif } from "@/features/exercises/components/ExerciseGif";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { FavoriteButton } from "@/features/exercises/components/FavoriteButton";
@@ -31,13 +31,11 @@ export function ExerciseCard({ exercise, isFavorite }: ExerciseCardProps) {
         </div>
 
         {exercise.gifUrl && (
-          <div className="relative aspect-square bg-muted overflow-hidden rounded-t-xl pointer-events-none">
-            <Image
+          <div className="aspect-square bg-muted overflow-hidden rounded-t-xl pointer-events-none">
+            <ExerciseGif
               src={exercise.gifUrl}
               alt={exercise.nameFr}
-              fill
-              unoptimized
-              className="object-cover group-hover:scale-105 transition-transform duration-300"
+              className="w-full h-full"
             />
           </div>
         )}
