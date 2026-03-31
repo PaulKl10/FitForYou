@@ -51,7 +51,7 @@ export function DeleteSessionButton({ sessionId }: { sessionId: string }) {
           </DialogClose>
           <Button
             variant="destructive"
-            disabled={isPending}
+            isLoading={isPending}
             onClick={handleDelete}
           >
             {isPending ? "Suppression..." : "Supprimer"}

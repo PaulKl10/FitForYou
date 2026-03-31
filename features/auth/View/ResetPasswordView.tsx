@@ -111,7 +111,7 @@ export function ResetPasswordView() {
                 type="submit"
                 nativeButton
                 className="w-full font-semibold py-5 cursor-pointer hover:bg-primary/80"
-                disabled={isPending}
+                isLoading={isPending}
               >
                 {isPending ? "Mise à jour..." : "Mettre à jour"}
               </Button>

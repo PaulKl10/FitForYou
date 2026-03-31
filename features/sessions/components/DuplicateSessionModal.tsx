@@ -71,7 +71,7 @@ export function DuplicateSessionModal({ sessionId }: DuplicateSessionModalProps)
           <DialogClose render={<Button variant="outline" />}>
             Annuler
           </DialogClose>
-          <Button disabled={isPending} onClick={handleDuplicate}>
+          <Button isLoading={isPending} onClick={handleDuplicate}>
             {isPending ? "Duplication..." : "Dupliquer"}
           </Button>
         </div>

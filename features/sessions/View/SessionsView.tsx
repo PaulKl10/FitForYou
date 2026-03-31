@@ -1,4 +1,8 @@
+"use client";
+
 import Link from "next/link";
+import { useRouter } from "next/navigation";
+import { useState, useTransition } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -23,6 +27,17 @@ function groupByMonth(sessions: SessionsViewProps["sessions"]) {
 }
 
 export function SessionsView({ sessions, currentPage, totalPages, total }: SessionsViewProps) {
+  const router = useRouter();
+  const [isPending, startTransition] = useTransition();
+  const [pendingHref, setPendingHref] = useState<string | null>(null);
+
+  const loadingHref = isPending ? pendingHref : null;
+
+  function navigate(href: string) {
+    setPendingHref(href);
+    startTransition(() => router.push(href));
+  }
+
   const groups = groupByMonth(sessions);
 
   return (
@@ -37,7 +52,7 @@ export function SessionsView({ sessions, currentPage, totalPages, total }: Sessi
             {total} séance{total > 1 ? "s" : ""} au total
           </p>
         </div>
-        <Button render={<Link href="/sessions/new" />} nativeButton={false}>
+        <Button isLoading={loadingHref === "/sessions/new"} onClick={() => navigate("/sessions/new")}>
           <Plus className="size-4" />
           Nouvelle séance
         </Button>
@@ -53,7 +68,7 @@ export function SessionsView({ sessions, currentPage, totalPages, total }: Sessi
             <p className="text-sm text-muted-foreground mb-6">
               Lance ta première séance !
             </p>
-            <Button render={<Link href="/sessions/new" />} nativeButton={false}>
+            <Button isLoading={loadingHref === "/sessions/new"} onClick={() => navigate("/sessions/new")}>
               <Plus className="size-4" />
               Commencer une séance
             </Button>

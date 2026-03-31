@@ -98,7 +98,7 @@ export function SignupView() {
               </div>
             </CardContent>
             <CardFooter className="flex flex-col gap-4 pt-2">
-              <Button type="submit" className="w-full font-semibold" disabled={isPending}>
+              <Button type="submit" className="w-full font-semibold" isLoading={isPending}>
                 {isPending ? "Création..." : "Créer mon compte"}
               </Button>
               <p className="text-sm text-muted-foreground text-center">

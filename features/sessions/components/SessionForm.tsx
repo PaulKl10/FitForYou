@@ -450,7 +450,7 @@ export function SessionForm({
       <Button
         type="button"
         className="w-full"
-        disabled={isPending}
+        isLoading={isPending}
         onClick={() => form.handleSubmit()}
       >
         {isPending ? "Enregistrement..." : submitLabel}

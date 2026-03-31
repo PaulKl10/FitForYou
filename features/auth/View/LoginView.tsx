@@ -109,7 +109,7 @@ export function LoginView() {
                 type="submit"
                 nativeButton
                 className="w-full font-semibold py-5 cursor-pointer hover:bg-primary/80"
-                disabled={isPending}
+                isLoading={isPending}
               >
                 {isPending ? "Connexion..." : "Se connecter"}
               </Button>

@@ -68,7 +68,7 @@ export function ProfileEditForm({ profile, avatarUrl, isPending, onSubmit, onCan
           <Button type="button" variant="outline" className="flex-1" disabled={isPending} onClick={onCancel}>
             Annuler
           </Button>
-          <Button type="submit" className="flex-1" disabled={isPending}>
+          <Button type="submit" className="flex-1" isLoading={isPending}>
             {isPending ? "Sauvegarde..." : "Sauvegarder les modifications"}
           </Button>
         </div>

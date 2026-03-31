@@ -1,4 +1,7 @@
-import Link from "next/link";
+"use client";
+
+import { useRouter } from "next/navigation";
+import { useTransition } from "react";
 import { Plus } from "lucide-react";
 import { Button } from "@/components/ui/button";
 
@@ -7,6 +10,13 @@ interface DashboardHeaderProps {
 }
 
 export function DashboardHeader({ profileName }: DashboardHeaderProps) {
+  const router = useRouter();
+  const [isPending, startTransition] = useTransition();
+
+  function navigate(href: string) {
+    startTransition(() => router.push(href));
+  }
+
   return (
     <div className="flex items-start justify-between gap-4">
       <div>
@@ -20,8 +30,8 @@ export function DashboardHeader({ profileName }: DashboardHeaderProps) {
           Prêt pour ta séance du jour ?
         </p>
       </div>
-      <Button render={<Link href="/sessions/new" />} nativeButton={false} className="hidden md:flex">
-        <Plus className="size-4" />
+      <Button isLoading={isPending} onClick={() => navigate("/sessions/new")} className="hidden md:flex">
+        {!isPending && <Plus className="size-4" />}
         Nouvelle séance
       </Button>
     </div>

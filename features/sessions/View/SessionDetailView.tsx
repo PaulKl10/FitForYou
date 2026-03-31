@@ -1,4 +1,8 @@
+"use client";
+
 import Link from "next/link";
+import { useRouter } from "next/navigation";
+import { useState, useTransition } from "react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { ArrowLeft, Clock, Pencil, StickyNote, Dumbbell } from "lucide-react";
@@ -10,6 +14,17 @@ export function SessionDetailView({
   session,
   setsByExercise,
 }: SessionDetailViewProps) {
+  const router = useRouter();
+  const [isPending, startTransition] = useTransition();
+  const [pendingHref, setPendingHref] = useState<string | null>(null);
+
+  const loadingHref = isPending ? pendingHref : null;
+
+  function navigate(href: string) {
+    setPendingHref(href);
+    startTransition(() => router.push(href));
+  }
+
   const exerciseGroups = Object.values(setsByExercise);
 
   const dateLabel = new Date(session.date).toLocaleDateString("fr-FR", {
@@ -25,12 +40,12 @@ export function SessionDetailView({
         <Button
           variant="ghost"
           size="icon"
-          render={<Link href="/sessions" />}
-          nativeButton={false}
           className="mt-1 shrink-0"
           aria-label="Retour aux séances"
+          isLoading={loadingHref === "/sessions"}
+          onClick={() => navigate("/sessions")}
         >
-          <ArrowLeft className="size-4" />
+          {loadingHref !== "/sessions" && <ArrowLeft className="size-4" />}
         </Button>
         <div className="flex-1 min-w-0">
           <p className="text-sm font-medium text-muted-foreground uppercase tracking-widest mb-1">
@@ -79,11 +94,11 @@ export function SessionDetailView({
           <Button
             variant="outline"
             size="icon"
-            render={<Link href={`/sessions/${session.id}/edit`} />}
-            nativeButton={false}
             aria-label="Modifier la séance"
+            isLoading={loadingHref === `/sessions/${session.id}/edit`}
+            onClick={() => navigate(`/sessions/${session.id}/edit`)}
           >
-            <Pencil className="size-4" />
+            {loadingHref !== `/sessions/${session.id}/edit` && <Pencil className="size-4" />}
           </Button>
           <DeleteSessionButton sessionId={session.id} />
         </div>

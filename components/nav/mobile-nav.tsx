@@ -1,10 +1,15 @@
 "use client";
 
-import Link from "next/link";
-import { usePathname } from "next/navigation";
-import { LayoutDashboard, BookOpen, History, User, Loader2 } from "lucide-react";
+import { usePathname, useRouter } from "next/navigation";
+import {
+  LayoutDashboard,
+  BookOpen,
+  History,
+  User,
+  Loader2,
+} from "lucide-react";
 import { cn } from "@/lib/utils";
-import { useState, useEffect } from "react";
+import { useState, useTransition } from "react";
 
 const navItems = [
   { href: "/dashboard", label: "Accueil", icon: LayoutDashboard },
@@ -15,11 +20,11 @@ const navItems = [
 
 export function MobileNav() {
   const pathname = usePathname();
-  const [loadingHref, setLoadingHref] = useState<string | null>(null);
+  const router = useRouter();
+  const [isPending, startTransition] = useTransition();
+  const [pendingHref, setPendingHref] = useState<string | null>(null);
 
-  useEffect(() => {
-    setLoadingHref(null);
-  }, [pathname]);
+  const loadingHref = isPending ? pendingHref : null;
 
   return (
     <nav className="md:hidden fixed bottom-0 left-0 right-0 border-t bg-background/95 backdrop-blur-sm z-50">
@@ -28,21 +33,28 @@ export function MobileNav() {
           const isActive = pathname === href || pathname.startsWith(href + "/");
           const isLoading = loadingHref === href;
           return (
-            <Link
+            <button
               key={href}
-              href={href}
               aria-current={isActive ? "page" : undefined}
               onClick={() => {
-                if (!isActive) setLoadingHref(href);
+                if (isActive || isPending) return;
+                setPendingHref(href);
+                startTransition(() => router.push(href));
               }}
               className={cn(
                 "flex flex-col items-center gap-1 px-3 py-1.5 rounded-lg text-xs font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring",
-                isActive || isLoading ? "text-primary" : "text-muted-foreground"
+                isActive || isLoading
+                  ? "text-primary"
+                  : "text-muted-foreground",
               )}
             >
-              {isLoading ? <Loader2 className="size-5 animate-spin" /> : <Icon className="size-5" />}
+              {isLoading ? (
+                <Loader2 className="size-5 animate-spin" />
+              ) : (
+                <Icon className="size-5" />
+              )}
               {label}
-            </Link>
+            </button>
           );
         })}
       </div>
