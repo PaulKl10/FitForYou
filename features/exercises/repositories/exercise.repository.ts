@@ -1,3 +1,4 @@
+import { unstable_cache } from "next/cache";
 import { prisma } from "@/lib/prisma";
 
 interface ExerciseFilters {
@@ -30,59 +31,55 @@ function buildWhere(filters: ExerciseFilters, favoriteIds: string[]) {
   };
 }
 
-export async function getExercisePage(
+export const getExercisePage = (
   filters: ExerciseFilters,
   favoriteIds: string[] = [],
   pageSize = 24,
-) {
-  const where = buildWhere(filters, favoriteIds);
-  const currentPage = filters.page ?? 1;
-
-  const total = await prisma.exercise.count({ where });
-  const totalPages = Math.max(1, Math.ceil(total / pageSize));
-  const safePage = Math.min(currentPage, totalPages);
-
-  const exercises = await prisma.exercise.findMany({
-    where,
-    orderBy: { nameFr: "asc" },
-    skip: (safePage - 1) * pageSize,
-    take: pageSize,
-  });
-
-  return { exercises, totalExercises: total, totalPages, currentPage: safePage };
-}
-
-export async function getExerciseFilterOptions() {
-  const [musclesRaw, equipmentsRaw] = await Promise.all([
-    prisma.exercise.findMany({
-      select: { targetMuscle: true },
-      distinct: ["targetMuscle"],
-      orderBy: { targetMuscle: "asc" },
-    }),
-    prisma.exercise.findMany({
-      select: { equipment: true },
-      distinct: ["equipment"],
-      orderBy: { equipment: "asc" },
-    }),
-  ]);
-
-  return {
-    muscles: musclesRaw.map((r) => r.targetMuscle),
-    equipments: equipmentsRaw.map((r) => r.equipment).filter((e): e is string => e !== null),
-  };
-}
-
-export async function getExerciseById(id: string) {
-  return prisma.exercise.findUnique({
-    where: { id },
-    include: {
-      muscles: {
-        include: { muscle: true },
-        orderBy: { isPrimary: "desc" },
-      },
+) =>
+  unstable_cache(
+    async () => {
+      const where = buildWhere(filters, favoriteIds);
+      const currentPage = filters.page ?? 1;
+      const total = await prisma.exercise.count({ where });
+      const totalPages = Math.max(1, Math.ceil(total / pageSize));
+      const safePage = Math.min(currentPage, totalPages);
+      const exercises = await prisma.exercise.findMany({
+        where,
+        orderBy: { nameFr: "asc" },
+        skip: (safePage - 1) * pageSize,
+        take: pageSize,
+      });
+      return { exercises, totalExercises: total, totalPages, currentPage: safePage };
     },
-  });
-}
+    ["exercises", JSON.stringify(filters), JSON.stringify(favoriteIds)],
+    { tags: ["exercises"] },
+  )();
+
+export const getExerciseFilterOptions = () =>
+  unstable_cache(
+    async () => {
+      const [musclesRaw, equipmentsRaw] = await Promise.all([
+        prisma.exercise.findMany({ select: { targetMuscle: true }, distinct: ["targetMuscle"], orderBy: { targetMuscle: "asc" } }),
+        prisma.exercise.findMany({ select: { equipment: true }, distinct: ["equipment"], orderBy: { equipment: "asc" } }),
+      ]);
+      return {
+        muscles: musclesRaw.map((r) => r.targetMuscle),
+        equipments: equipmentsRaw.map((r) => r.equipment).filter((e): e is string => e !== null),
+      };
+    },
+    ["exercise-filter-options"],
+    { tags: ["exercises"] },
+  )();
+
+export const getExerciseById = (id: string) =>
+  unstable_cache(
+    () => prisma.exercise.findUnique({
+      where: { id },
+      include: { muscles: { include: { muscle: true }, orderBy: { isPrimary: "desc" } } },
+    }),
+    ["exercise", id],
+    { tags: ["exercises"] },
+  )();
 
 export async function getExerciseProgress(exerciseId: string, userId: string) {
   const sets = await prisma.set.findMany({
@@ -123,10 +120,15 @@ export async function getExerciseProgress(exerciseId: string, userId: string) {
   return Array.from(map.values());
 }
 
-export async function getFavoriteIds(userId: string): Promise<string[]> {
-  const profile = await prisma.profile.findUnique({
-    where: { userId },
-    select: { favoriteExercises: { select: { exerciseId: true } } },
-  });
-  return profile?.favoriteExercises.map((f) => f.exerciseId) ?? [];
-}
+export const getFavoriteIds = (userId: string): Promise<string[]> =>
+  unstable_cache(
+    async () => {
+      const profile = await prisma.profile.findUnique({
+        where: { userId },
+        select: { favoriteExercises: { select: { exerciseId: true } } },
+      });
+      return profile?.favoriteExercises.map((f) => f.exerciseId) ?? [];
+    },
+    ["favorite-ids", userId],
+    { tags: [`favorites-${userId}`] },
+  )();

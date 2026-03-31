@@ -1,6 +1,7 @@
 "use server";
 
 import { redirect } from "next/navigation";
+import { revalidateTag } from "next/cache";
 import { createClient } from "@/lib/supabase/server";
 import { prisma } from "@/lib/prisma";
 
@@ -57,6 +58,8 @@ export async function createSession(input: SessionInput) {
     return created;
   });
 
+  revalidateTag(`sessions-${user.id}`, 'max');
+  revalidateTag(`dashboard-${user.id}`, 'max');
   redirect(`/sessions/${session.id}`);
 }
 
@@ -104,6 +107,9 @@ export async function updateSession(sessionId: string, input: SessionInput) {
     }
   });
 
+  revalidateTag(`session-${sessionId}`, 'max');
+  revalidateTag(`sessions-${user.id}`, 'max');
+  revalidateTag(`dashboard-${user.id}`, 'max');
   redirect(`/sessions/${sessionId}`);
 }
 
@@ -160,6 +166,8 @@ export async function duplicateSession(sessionId: string, newDate: string) {
     return created;
   });
 
+  revalidateTag(`sessions-${user.id}`, 'max');
+  revalidateTag(`dashboard-${user.id}`, 'max');
   redirect("/sessions");
 }
 
@@ -178,5 +186,8 @@ export async function deleteSession(sessionId: string) {
 
   await prisma.session.delete({ where: { id: sessionId } });
 
+  revalidateTag(`session-${sessionId}`, 'max');
+  revalidateTag(`sessions-${user.id}`, 'max');
+  revalidateTag(`dashboard-${user.id}`, 'max');
   redirect("/sessions");
 }

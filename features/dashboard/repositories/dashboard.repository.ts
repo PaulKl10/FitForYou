@@ -1,7 +1,8 @@
+import { unstable_cache } from "next/cache";
 import { prisma } from "@/lib/prisma";
 import type { RecentExercise } from "@/features/dashboard/types";
 
-export async function getDashboardData(userId: string) {
+async function _getDashboardData(userId: string) {
   const [profile, rawSessions, totalSets, calendarSessions] = await Promise.all([
     prisma.profile.findUnique({ where: { userId } }),
     prisma.session.findMany({
@@ -79,3 +80,8 @@ export async function getDashboardData(userId: string) {
 
   return { profile, recentSessions, recentExercises, totalSets, calendarSessions };
 }
+
+export const getDashboardData = (userId: string) =>
+  unstable_cache(_getDashboardData, ["dashboard", userId], {
+    tags: [`dashboard-${userId}`],
+  })(userId);

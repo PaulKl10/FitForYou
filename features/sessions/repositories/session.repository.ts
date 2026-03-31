@@ -1,8 +1,9 @@
+import { unstable_cache } from "next/cache";
 import { prisma } from "@/lib/prisma";
 
 const SESSIONS_PER_PAGE = 20;
 
-export async function getSessionsByUser(userId: string, page = 1) {
+async function _getSessionsByUser(userId: string, page = 1) {
   const skip = (page - 1) * SESSIONS_PER_PAGE;
 
   const [total, rawSessions] = await Promise.all([
@@ -64,7 +65,7 @@ export async function getSessionsByUser(userId: string, page = 1) {
   return { sessions, total, totalPages: Math.ceil(total / SESSIONS_PER_PAGE) };
 }
 
-export async function getSessionById(id: string, userId: string) {
+async function _getSessionById(id: string, userId: string) {
   return prisma.session.findUnique({
     where: { id, userId },
     include: {
@@ -75,3 +76,13 @@ export async function getSessionById(id: string, userId: string) {
     },
   });
 }
+
+export const getSessionsByUser = (userId: string, page = 1) =>
+  unstable_cache(_getSessionsByUser, ["sessions", userId, String(page)], {
+    tags: [`sessions-${userId}`],
+  })(userId, page);
+
+export const getSessionById = (id: string, userId: string) =>
+  unstable_cache(_getSessionById, ["session", id], {
+    tags: [`session-${id}`, `sessions-${userId}`],
+  })(id, userId);

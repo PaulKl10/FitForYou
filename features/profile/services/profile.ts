@@ -1,6 +1,6 @@
 "use server";
 
-import { revalidatePath } from "next/cache";
+import { revalidateTag } from "next/cache";
 import { z } from "zod";
 import { createClient } from "@/lib/supabase/server";
 import { prisma } from "@/lib/prisma";
@@ -51,5 +51,5 @@ export async function updateProfile(formData: FormData) {
     });
   }
 
-  revalidatePath("/profile");
+  revalidateTag(`profile-${user.id}`, 'max');
 }

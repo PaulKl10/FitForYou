@@ -1,12 +1,16 @@
+import { unstable_cache } from "next/cache";
 import { prisma } from "@/lib/prisma";
 
-export async function getProfile(userId: string) {
-  return prisma.profile.findUnique({ where: { userId } });
-}
+export const getProfile = (userId: string) =>
+  unstable_cache(
+    () => prisma.profile.findUnique({ where: { userId } }),
+    ["profile", userId],
+    { tags: [`profile-${userId}`] },
+  )();
 
-export async function getWeightHistory(profileId: string) {
-  return prisma.weightEntry.findMany({
-    where: { profileId },
-    orderBy: { recordedAt: "asc" },
-  });
-}
+export const getWeightHistory = (profileId: string) =>
+  unstable_cache(
+    () => prisma.weightEntry.findMany({ where: { profileId }, orderBy: { recordedAt: "asc" } }),
+    ["weight-history", profileId],
+    { tags: [`profile-${profileId}`] },
+  )();

@@ -20,6 +20,7 @@ export const viewport = {
   width: "device-width",
   initialScale: 1,
   interactiveWidget: "overlays-content",
+  themeColor: "#f26522",
 };
 
 export const metadata: Metadata = {
@@ -28,7 +29,6 @@ export const metadata: Metadata = {
     follow: false,
     googleBot: { index: false, follow: false },
   },
-  themeColor: "#f26522",
   icons: {
     apple: "/fit-for-you-01.png",
   },
