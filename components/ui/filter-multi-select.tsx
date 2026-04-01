@@ -1,6 +1,5 @@
 "use client";
 
-import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import {
   DropdownMenu,
@@ -49,7 +48,7 @@ export function FilterMultiSelect({
         <ChevronDown className="size-4 text-muted-foreground" />
       </DropdownMenuTrigger>
 
-      <DropdownMenuContent align="start" className="w-64">
+      <DropdownMenuContent align="start" className="w-64 max-h-64 overflow-y-auto">
         <DropdownMenuItem
           onClick={() => onChange([])}
           className="text-muted-foreground"

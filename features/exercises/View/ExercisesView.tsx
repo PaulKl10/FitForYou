@@ -10,7 +10,7 @@ export function ExercisesView({
   currentPage,
   allMuscles,
   allEquipments,
-  filters,
+  favoritesOnly,
   favoriteIds,
 }: ExercisesViewProps) {
   const favoriteSet = new Set(favoriteIds);
@@ -33,7 +33,6 @@ export function ExercisesView({
         allEquipments={allEquipments}
         totalPages={totalPages}
         currentPage={currentPage}
-        filters={filters}
       />
 
       {exercises.length === 0 ? (
@@ -41,7 +40,7 @@ export function ExercisesView({
           <Search className="size-10 text-muted-foreground mb-3" />
           <p className="font-semibold mb-1">Aucun exercice trouvé</p>
           <p className="text-sm text-muted-foreground">
-            {filters.favoritesOnly
+            {favoritesOnly
               ? "Tu n'as pas encore de favoris"
               : "Essaie d'autres filtres"}
           </p>

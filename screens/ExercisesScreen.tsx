@@ -38,7 +38,7 @@ export async function ExercisesScreen({ filters }: ExercisesScreenProps) {
       currentPage={currentPage}
       allMuscles={muscles}
       allEquipments={equipments}
-      filters={{ ...filters, page: currentPage }}
+      favoritesOnly={filters.favoritesOnly ?? false}
       favoriteIds={favoriteIds}
     />
   );

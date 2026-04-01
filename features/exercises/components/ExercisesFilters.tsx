@@ -6,20 +6,20 @@ import { FilterMultiSelect } from "@/components/ui/filter-multi-select";
 import { ExercisesPagination } from "@/features/exercises/components/ExercisesPagination";
 import { cn } from "@/lib/utils";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
-import { useEffect, useRef, useState } from "react";
+import {
+  useCallback,
+  useDeferredValue,
+  useEffect,
+  useOptimistic,
+  useState,
+  useTransition,
+} from "react";
 
 type ExercisesFiltersProps = {
   allMuscles: string[];
   allEquipments: string[];
   currentPage: number;
   totalPages: number;
-  filters: {
-    q?: string;
-    muscle?: string[];
-    equipment?: string[];
-    page?: number;
-    favoritesOnly?: boolean;
-  };
 };
 
 export function ExercisesFilters({
@@ -27,62 +27,89 @@ export function ExercisesFilters({
   allEquipments,
   currentPage,
   totalPages,
-  filters,
 }: ExercisesFiltersProps) {
   const router = useRouter();
   const pathname = usePathname();
   const searchParams = useSearchParams();
+  const [, startTransition] = useTransition();
 
-  const [q, setQ] = useState(filters.q ?? "");
-  const [muscle, setMuscle] = useState<string[]>(filters.muscle ?? []);
-  const [equipment, setEquipment] = useState<string[]>(filters.equipment ?? []);
-  const [favoritesOnly, setFavoritesOnly] = useState(filters.favoritesOnly ?? false);
-  const [debouncedQ, setDebouncedQ] = useState(filters.q ?? "");
-  const hasMounted = useRef(false);
+  const muscleFromUrl = searchParams.getAll("muscle");
+  const equipmentFromUrl = searchParams.getAll("equipment");
+  const favoritesOnlyFromUrl = searchParams.get("favoritesOnly") === "true";
+
+  const [muscle, setOptimisticMuscle] = useOptimistic(muscleFromUrl);
+  const [equipment, setOptimisticEquipment] = useOptimistic(equipmentFromUrl);
+  const [favoritesOnly, setOptimisticFavoritesOnly] = useOptimistic(favoritesOnlyFromUrl);
+
+  const [q, setQ] = useState(searchParams.get("q") ?? "");
+  const deferredQ = useDeferredValue(q);
 
   useEffect(() => {
-    const timer = window.setTimeout(() => setDebouncedQ(q), 300);
-    return () => window.clearTimeout(timer);
-  }, [q]);
+    setQ(searchParams.get("q") ?? "");
+  }, [searchParams]);
+
+  const replaceURL = useCallback(
+    (next: URLSearchParams) => {
+      const nextQuery = next.toString();
+      if (nextQuery !== searchParams.toString()) {
+        router.replace(nextQuery ? `${pathname}?${nextQuery}` : pathname, {
+          scroll: false,
+        });
+      }
+    },
+    [searchParams, pathname, router],
+  );
 
   useEffect(() => {
-    if (!hasMounted.current) {
-      hasMounted.current = true;
-      return;
-    }
-
-    const next = new URLSearchParams(searchParams.toString());
-    const normalizedQ = debouncedQ.trim();
+    const normalizedQ = deferredQ.trim();
     const currentQ = searchParams.get("q") ?? "";
-    const currentMuscles = searchParams.getAll("muscle");
-    const currentEquipments = searchParams.getAll("equipment");
-    const currentFavoritesOnly = searchParams.get("favoritesOnly") === "true";
-
+    if (normalizedQ === currentQ) return;
+    const next = new URLSearchParams(searchParams.toString());
     if (normalizedQ) next.set("q", normalizedQ);
     else next.delete("q");
+    next.delete("page");
+    replaceURL(next);
+  }, [deferredQ, searchParams, replaceURL]);
 
-    next.delete("muscle");
-    for (const value of muscle) next.append("muscle", value);
+  const handleMuscleChange = useCallback(
+    (values: string[]) => {
+      startTransition(() => {
+        setOptimisticMuscle(values);
+        const next = new URLSearchParams(searchParams.toString());
+        next.delete("muscle");
+        for (const v of values) next.append("muscle", v);
+        next.delete("page");
+        replaceURL(next);
+      });
+    },
+    [searchParams, replaceURL, setOptimisticMuscle],
+  );
 
-    next.delete("equipment");
-    for (const value of equipment) next.append("equipment", value);
+  const handleEquipmentChange = useCallback(
+    (values: string[]) => {
+      startTransition(() => {
+        setOptimisticEquipment(values);
+        const next = new URLSearchParams(searchParams.toString());
+        next.delete("equipment");
+        for (const v of values) next.append("equipment", v);
+        next.delete("page");
+        replaceURL(next);
+      });
+    },
+    [searchParams, replaceURL, setOptimisticEquipment],
+  );
 
-    if (favoritesOnly) next.set("favoritesOnly", "true");
-    else next.delete("favoritesOnly");
-
-    const filtersChanged =
-      normalizedQ !== currentQ ||
-      muscle.join("||") !== currentMuscles.join("||") ||
-      equipment.join("||") !== currentEquipments.join("||") ||
-      favoritesOnly !== currentFavoritesOnly;
-
-    if (filtersChanged) next.delete("page");
-
-    const nextQuery = next.toString();
-    if (nextQuery !== searchParams.toString()) {
-      router.replace(nextQuery ? `${pathname}?${nextQuery}` : pathname, { scroll: false });
-    }
-  }, [debouncedQ, muscle, equipment, favoritesOnly, pathname, router, searchParams]);
+  const handleFavoritesToggle = useCallback(() => {
+    const nextValue = !favoritesOnlyFromUrl;
+    startTransition(() => {
+      setOptimisticFavoritesOnly(nextValue);
+      const next = new URLSearchParams(searchParams.toString());
+      if (nextValue) next.set("favoritesOnly", "true");
+      else next.delete("favoritesOnly");
+      next.delete("page");
+      replaceURL(next);
+    });
+  }, [searchParams, favoritesOnlyFromUrl, replaceURL, setOptimisticFavoritesOnly]);
 
   const createPageHref = (page: number) => {
     const next = new URLSearchParams(searchParams.toString());
@@ -107,7 +134,7 @@ export function ExercisesFilters({
               value={muscle}
               placeholder="Tous les muscles"
               options={allMuscles.map((m) => ({ value: m, label: m }))}
-              onChange={setMuscle}
+              onChange={handleMuscleChange}
             />
           </div>
           <div className="flex-1">
@@ -115,12 +142,12 @@ export function ExercisesFilters({
               value={equipment}
               placeholder="Tout l'équipement"
               options={allEquipments.map((eq) => ({ value: eq, label: eq }))}
-              onChange={setEquipment}
+              onChange={handleEquipmentChange}
             />
           </div>
           <button
             type="button"
-            onClick={() => setFavoritesOnly((prev) => !prev)}
+            onClick={handleFavoritesToggle}
             aria-label="Voir mes favoris"
             aria-pressed={favoritesOnly}
             className={cn(

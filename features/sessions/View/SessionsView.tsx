@@ -11,13 +11,19 @@ import { SessionsPagination } from "@/features/sessions/components/SessionsPagin
 import type { SessionsViewProps } from "@/features/sessions/types";
 
 function groupByMonth(sessions: SessionsViewProps["sessions"]) {
-  const groups = new Map<string, { label: string; sessions: typeof sessions }>();
+  const groups = new Map<
+    string,
+    { label: string; sessions: typeof sessions }
+  >();
   for (const session of sessions) {
     const date = new Date(session.date);
     const key = `${date.getFullYear()}-${date.getMonth()}`;
     if (!groups.has(key)) {
       groups.set(key, {
-        label: date.toLocaleDateString("fr-FR", { month: "long", year: "numeric" }),
+        label: date.toLocaleDateString("fr-FR", {
+          month: "long",
+          year: "numeric",
+        }),
         sessions: [],
       });
     }
@@ -26,7 +32,12 @@ function groupByMonth(sessions: SessionsViewProps["sessions"]) {
   return Array.from(groups.values());
 }
 
-export function SessionsView({ sessions, currentPage, totalPages, total }: SessionsViewProps) {
+export function SessionsView({
+  sessions,
+  currentPage,
+  totalPages,
+  total,
+}: SessionsViewProps) {
   const router = useRouter();
   const [isPending, startTransition] = useTransition();
   const [pendingHref, setPendingHref] = useState<string | null>(null);
@@ -47,12 +58,17 @@ export function SessionsView({ sessions, currentPage, totalPages, total }: Sessi
           <p className="text-sm font-medium text-muted-foreground uppercase tracking-widest mb-1">
             Historique
           </p>
-          <h1 className="text-3xl font-extrabold tracking-tight">Mes séances</h1>
+          <h1 className="text-3xl font-extrabold tracking-tight">
+            Mes séances
+          </h1>
           <p className="text-muted-foreground mt-1">
             {total} séance{total > 1 ? "s" : ""} au total
           </p>
         </div>
-        <Button isLoading={loadingHref === "/sessions/new"} onClick={() => navigate("/sessions/new")}>
+        <Button
+          isLoading={loadingHref === "/sessions/new"}
+          onClick={() => navigate("/sessions/new")}
+        >
           <Plus className="size-4" />
           Nouvelle séance
         </Button>
@@ -68,9 +84,12 @@ export function SessionsView({ sessions, currentPage, totalPages, total }: Sessi
             <p className="text-sm text-muted-foreground mb-6">
               Lance ta première séance !
             </p>
-            <Button isLoading={loadingHref === "/sessions/new"} onClick={() => navigate("/sessions/new")}>
-              <Plus className="size-4" />
-              Commencer une séance
+            <Button
+              isLoading={loadingHref === "/sessions/new"}
+              onClick={() => navigate("/sessions/new")}
+            >
+              {!loadingHref && <Plus className="size-4" />}
+              {!loadingHref && "Commencer une séance"}
             </Button>
           </CardContent>
         </Card>
@@ -84,7 +103,8 @@ export function SessionsView({ sessions, currentPage, totalPages, total }: Sessi
                     {label}
                   </h2>
                   <span className="text-xs text-muted-foreground/60">
-                    {groupSessions.length} séance{groupSessions.length > 1 ? "s" : ""}
+                    {groupSessions.length} séance
+                    {groupSessions.length > 1 ? "s" : ""}
                   </span>
                   <div className="flex-1 h-px bg-border/60" />
                 </div>
@@ -96,8 +116,8 @@ export function SessionsView({ sessions, currentPage, totalPages, total }: Sessi
                       ...new Set(
                         session.sets.map(
                           ({ exercise }: { exercise: { nameFr: string } }) =>
-                            exercise.nameFr
-                        )
+                            exercise.nameFr,
+                        ),
                       ),
                     ] as string[];
 
@@ -116,7 +136,9 @@ export function SessionsView({ sessions, currentPage, totalPages, total }: Sessi
                               <div className="min-w-0 flex-1 space-y-1">
                                 {session.name ? (
                                   <>
-                                    <p className="font-semibold">{session.name}</p>
+                                    <p className="font-semibold">
+                                      {session.name}
+                                    </p>
                                     <p className="text-xs text-muted-foreground capitalize">
                                       {date.toLocaleDateString("fr-FR", {
                                         weekday: "long",
@@ -135,7 +157,10 @@ export function SessionsView({ sessions, currentPage, totalPages, total }: Sessi
                                   </p>
                                 )}
                                 <div className="flex items-center flex-wrap gap-2">
-                                  <Badge variant="secondary" className="text-xs">
+                                  <Badge
+                                    variant="secondary"
+                                    className="text-xs"
+                                  >
                                     {session.exerciseCount} exercice
                                     {session.exerciseCount === 1 ? "" : "s"}
                                   </Badge>
@@ -145,12 +170,13 @@ export function SessionsView({ sessions, currentPage, totalPages, total }: Sessi
                                       {session.durationMinutes} min
                                     </span>
                                   )}
-                                  {session._count.sets > 0 && !session.hasFilledSets && (
-                                    <span className="flex items-center gap-1 text-xs text-amber-500 font-medium">
-                                      <AlertCircle className="size-3" />
-                                      À compléter
-                                    </span>
-                                  )}
+                                  {session._count.sets > 0 &&
+                                    !session.hasFilledSets && (
+                                      <span className="flex items-center gap-1 text-xs text-amber-500 font-medium">
+                                        <AlertCircle className="size-3" />À
+                                        compléter
+                                      </span>
+                                    )}
                                 </div>
                                 {uniqueExercises.length > 0 && (
                                   <div className="flex flex-wrap gap-1 pt-1">
@@ -185,7 +211,10 @@ export function SessionsView({ sessions, currentPage, totalPages, total }: Sessi
               </section>
             ))}
           </div>
-          <SessionsPagination currentPage={currentPage} totalPages={totalPages} />
+          <SessionsPagination
+            currentPage={currentPage}
+            totalPages={totalPages}
+          />
         </>
       )}
     </div>

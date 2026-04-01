@@ -21,12 +21,6 @@ export interface ExercisesViewProps {
   currentPage: number;
   allMuscles: string[];
   allEquipments: string[];
-  filters: {
-    q?: string;
-    muscle?: string[];
-    equipment?: string[];
-    page?: number;
-    favoritesOnly?: boolean;
-  };
+  favoritesOnly: boolean;
   favoriteIds: string[];
 }
