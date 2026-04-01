@@ -39,7 +39,8 @@ export function ExercisesFilters({
 
   const [muscle, setOptimisticMuscle] = useOptimistic(muscleFromUrl);
   const [equipment, setOptimisticEquipment] = useOptimistic(equipmentFromUrl);
-  const [favoritesOnly, setOptimisticFavoritesOnly] = useOptimistic(favoritesOnlyFromUrl);
+  const [favoritesOnly, setOptimisticFavoritesOnly] =
+    useOptimistic(favoritesOnlyFromUrl);
 
   const [q, setQ] = useState(searchParams.get("q") ?? "");
   const deferredQ = useDeferredValue(q);
@@ -55,17 +56,6 @@ export function ExercisesFilters({
     },
     [searchParams, pathname, router],
   );
-
-  useEffect(() => {
-    const normalizedQ = deferredQ.trim();
-    const currentQ = searchParams.get("q") ?? "";
-    if (normalizedQ === currentQ) return;
-    const next = new URLSearchParams(searchParams.toString());
-    if (normalizedQ) next.set("q", normalizedQ);
-    else next.delete("q");
-    next.delete("page");
-    replaceURL(next);
-  }, [deferredQ, searchParams, replaceURL]);
 
   const handleMuscleChange = useCallback(
     (values: string[]) => {
@@ -105,7 +95,12 @@ export function ExercisesFilters({
       next.delete("page");
       replaceURL(next);
     });
-  }, [searchParams, favoritesOnlyFromUrl, replaceURL, setOptimisticFavoritesOnly]);
+  }, [
+    searchParams,
+    favoritesOnlyFromUrl,
+    replaceURL,
+    setOptimisticFavoritesOnly,
+  ]);
 
   const createPageHref = (page: number) => {
     const next = new URLSearchParams(searchParams.toString());
@@ -114,6 +109,17 @@ export function ExercisesFilters({
     const query = next.toString();
     return query ? `${pathname}?${query}` : pathname;
   };
+
+  useEffect(() => {
+    const normalizedQ = deferredQ.trim();
+    const currentQ = searchParams.get("q") ?? "";
+    if (normalizedQ === currentQ) return;
+    const next = new URLSearchParams(searchParams.toString());
+    if (normalizedQ) next.set("q", normalizedQ);
+    else next.delete("q");
+    next.delete("page");
+    replaceURL(next);
+  }, [deferredQ, searchParams, replaceURL]);
 
   return (
     <div className="sticky top-14 z-30 flex flex-wrap justify-between gap-2 bg-background py-2">

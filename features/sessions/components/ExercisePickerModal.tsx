@@ -1,11 +1,10 @@
 "use client";
 
 import {
-  useState,
+  useDeferredValue,
   useEffect,
+  useState,
   useTransition,
-  useCallback,
-  useRef,
 } from "react";
 import {
   Search,
@@ -18,9 +17,9 @@ import {
   Plus,
 } from "lucide-react";
 import { ExerciseGif } from "@/features/exercises/components/ExerciseGif";
+import { FilterSearchInput } from "@/components/ui/filter-search-input";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
 import {
   Dialog,
@@ -28,7 +27,6 @@ import {
   DialogHeader,
   DialogTitle,
   DialogTrigger,
-  DialogClose,
 } from "@/components/ui/dialog";
 import { FilterMultiSelect } from "@/components/ui/filter-multi-select";
 import {
@@ -65,13 +63,14 @@ export function ExercisePickerModal({
   const [open, setOpen] = useState(false);
   const [initialized, setInitialized] = useState(false);
 
-  // Filter options
+  // Filter options (loaded once)
   const [allMuscles, setAllMuscles] = useState<string[]>([]);
   const [allEquipments, setAllEquipments] = useState<string[]>([]);
   const [favoriteIds, setFavoriteIds] = useState<string[]>([]);
 
-  // Active filters
+  // Active filters — useState: source of truth locale, pas de revert comme useOptimistic
   const [query, setQuery] = useState("");
+  const deferredQuery = useDeferredValue(query);
   const [muscles, setMuscles] = useState<string[]>([]);
   const [equipments, setEquipments] = useState<string[]>([]);
   const [favoritesOnly, setFavoritesOnly] = useState(false);
@@ -90,9 +89,8 @@ export function ExercisePickerModal({
 
   const [isInit, startInit] = useTransition();
   const [isFetching, startFetch] = useTransition();
-  const debounceRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
-  // Load filter options and favorites when modal first opens
+  // Chargement initial des options de filtres
   useEffect(() => {
     if (!open || initialized) return;
     startInit(async () => {
@@ -104,49 +102,43 @@ export function ExercisePickerModal({
     });
   }, [open, initialized]);
 
-  // Fetch exercises when filters change
-  const fetchExercises = useCallback(
-    (
-      q: string,
-      muscleFilter: string[],
-      equipmentFilter: string[],
-      fav: boolean,
-      pageNum: number,
-      favIds: string[],
-    ) => {
-      startFetch(async () => {
-        const result = await fetchPickerExercises(
-          {
-            q: q || undefined,
-            muscle: muscleFilter.length > 0 ? muscleFilter : undefined,
-            equipment:
-              equipmentFilter.length > 0 ? equipmentFilter : undefined,
-            favoritesOnly: fav || undefined,
-            page: pageNum,
-          },
-          favIds,
-        );
-        setState(result);
-      });
-    },
-    [],
-  );
-
+  // Fetch quand les filtres changent
   useEffect(() => {
     if (!initialized) return;
-    if (debounceRef.current) clearTimeout(debounceRef.current);
-    debounceRef.current = setTimeout(() => {
-      fetchExercises(query, muscles, equipments, favoritesOnly, page, favoriteIds);
-    }, query ? 300 : 0);
-    return () => {
-      if (debounceRef.current) clearTimeout(debounceRef.current);
-    };
-  }, [initialized, query, muscles, equipments, favoritesOnly, page, favoriteIds, fetchExercises]);
+    startFetch(async () => {
+      const result = await fetchPickerExercises(
+        {
+          q: deferredQuery || undefined,
+          muscle: muscles.length > 0 ? muscles : undefined,
+          equipment: equipments.length > 0 ? equipments : undefined,
+          favoritesOnly: favoritesOnly || undefined,
+          page,
+        },
+        favoriteIds,
+      );
+      setState(result);
+    });
+  }, [initialized, deferredQuery, muscles, equipments, favoritesOnly, page, favoriteIds]);
 
-  // Reset page when filters change
+  // Reset page quand la query change (deferred pour rester synchronisé avec le fetch)
   useEffect(() => {
     setPage(1);
-  }, [query, muscles, equipments, favoritesOnly]);
+  }, [deferredQuery]);
+
+  function handleMusclesChange(values: string[]) {
+    setMuscles(values);
+    setPage(1);
+  }
+
+  function handleEquipmentsChange(values: string[]) {
+    setEquipments(values);
+    setPage(1);
+  }
+
+  function handleFavoritesToggle() {
+    setFavoritesOnly((prev) => !prev);
+    setPage(1);
+  }
 
   function toggleSelect(exercise: Exercise) {
     setSelected((prev) => {
@@ -164,10 +156,7 @@ export function ExercisePickerModal({
     });
   }
 
-  function handleConfirm() {
-    onAdd(selected);
-    setOpen(false);
-    // Reset state for next open
+  function resetFilters() {
     setSelected([]);
     setQuery("");
     setMuscles([]);
@@ -176,16 +165,15 @@ export function ExercisePickerModal({
     setPage(1);
   }
 
+  function handleConfirm() {
+    onAdd(selected);
+    setOpen(false);
+    resetFilters();
+  }
+
   function handleOpenChange(value: boolean) {
     setOpen(value);
-    if (!value) {
-      setSelected([]);
-      setQuery("");
-      setMuscles([]);
-      setEquipments([]);
-      setFavoritesOnly(false);
-      setPage(1);
-    }
+    if (!value) resetFilters();
   }
 
   const isSelected = (id: string) => selected.some((e) => e.id === id);
@@ -196,9 +184,7 @@ export function ExercisePickerModal({
     <Dialog open={open} onOpenChange={handleOpenChange}>
       <DialogTrigger render={children as React.ReactElement} />
 
-      <DialogContent
-        className="p-0 max-w-4xl w-[95vw] h-[90vh] flex flex-col overflow-hidden"
-      >
+      <DialogContent className="p-0 max-w-4xl w-[95vw] h-[90vh] flex flex-col overflow-hidden">
         <div className="flex flex-col md:flex-row h-full overflow-hidden">
           {/* ── Left panel: search + results ── */}
           <div className="flex flex-col flex-1 min-w-0 overflow-hidden">
@@ -209,52 +195,42 @@ export function ExercisePickerModal({
 
             {/* Filters */}
             <div className="px-4 py-3 space-y-2 border-b border-border/60 shrink-0">
-              {/* Search */}
-              <div className="relative">
-                <Search className="absolute left-3 top-1/2 -translate-y-1/2 size-4 text-muted-foreground" />
-                <Input
-                  value={query}
-                  onChange={(e) => setQuery(e.target.value)}
-                  placeholder="Rechercher un exercice..."
-                  className="pl-9 pr-9"
-                />
-                {isLoading && (
-                  <Loader2 className="absolute right-3 top-1/2 -translate-y-1/2 size-4 text-muted-foreground animate-spin" />
-                )}
-              </div>
+              <FilterSearchInput
+                name="q"
+                value={query}
+                onChange={(e) => setQuery(e.target.value)}
+                placeholder="Rechercher un exercice..."
+              />
 
-              {/* Muscle + Equipment filters */}
               <div className="grid grid-cols-2 gap-2">
                 <FilterMultiSelect
                   placeholder="Muscles"
                   options={allMuscles.map((m) => ({ value: m, label: m }))}
                   value={muscles}
-                  onChange={setMuscles}
+                  onChange={handleMusclesChange}
                 />
                 <FilterMultiSelect
                   placeholder="Équipement"
                   options={allEquipments.map((e) => ({ value: e, label: e }))}
                   value={equipments}
-                  onChange={setEquipments}
+                  onChange={handleEquipmentsChange}
                 />
               </div>
 
-              {/* Favorites toggle */}
               <Button
                 type="button"
-                variant={favoritesOnly ? "default" : "outline"}
+                variant="outline"
                 size="sm"
                 className={cn(
-                  "gap-1.5 h-8 text-xs",
-                  favoritesOnly && "bg-rose-500 hover:bg-rose-600 border-rose-500",
+                  "flex items-center gap-1.5 rounded-lg border px-3 py-2 text-sm font-medium transition-colors",
+                  favoritesOnly
+                    ? "border-red-500/40 bg-red-500/10 text-red-500"
+                    : "border-border bg-card text-muted-foreground hover:text-red-500",
                 )}
-                onClick={() => setFavoritesOnly((v) => !v)}
+                onClick={handleFavoritesToggle}
               >
                 <Heart
-                  className={cn(
-                    "size-3.5",
-                    favoritesOnly ? "fill-white" : "fill-none",
-                  )}
+                  className={cn("size-4", favoritesOnly && "fill-red-500")}
                 />
                 Favoris
               </Button>
@@ -277,9 +253,14 @@ export function ExercisePickerModal({
                   </p>
                 </div>
               ) : (
-                <div className="grid grid-cols-2 sm:grid-cols-3 gap-3 p-4">
+                <div
+                  className={cn(
+                    "grid grid-cols-2 sm:grid-cols-3 gap-3 p-4 transition-opacity",
+                    isFetching && "opacity-60",
+                  )}
+                >
                   {state.exercises.map((exercise) => {
-                    const selected = isSelected(exercise.id);
+                    const sel = isSelected(exercise.id);
                     const disabled = isDisabled(exercise.id);
                     const isFav = favoriteIds.includes(exercise.id);
 
@@ -293,12 +274,11 @@ export function ExercisePickerModal({
                           "relative rounded-xl border text-left transition-all overflow-hidden",
                           disabled
                             ? "opacity-40 cursor-not-allowed border-border/40"
-                            : selected
+                            : sel
                               ? "border-primary ring-2 ring-primary/30 cursor-pointer"
                               : "border-border/60 hover:border-primary/50 cursor-pointer",
                         )}
                       >
-                        {/* GIF / placeholder */}
                         <div className="aspect-square bg-muted/50 overflow-hidden">
                           {exercise.gifUrl ? (
                             <ExerciseGif
@@ -312,8 +292,7 @@ export function ExercisePickerModal({
                             </div>
                           )}
 
-                          {/* Selected overlay */}
-                          {selected && (
+                          {sel && (
                             <div className="absolute inset-0 bg-primary/20 flex items-center justify-center">
                               <div className="size-8 rounded-full bg-primary flex items-center justify-center shadow-md">
                                 <svg
@@ -326,7 +305,6 @@ export function ExercisePickerModal({
                             </div>
                           )}
 
-                          {/* Already added badge */}
                           {disabled && (
                             <div className="absolute inset-0 bg-background/60 flex items-center justify-center">
                               <Badge variant="outline" className="text-xs">
@@ -335,7 +313,6 @@ export function ExercisePickerModal({
                             </div>
                           )}
 
-                          {/* Favorite heart */}
                           {isFav && !disabled && (
                             <div className="absolute top-1.5 right-1.5">
                               <Heart className="size-3.5 fill-rose-500 text-rose-500 drop-shadow" />
@@ -343,7 +320,6 @@ export function ExercisePickerModal({
                           )}
                         </div>
 
-                        {/* Info */}
                         <div className="p-2">
                           <p className="text-xs font-semibold truncate leading-tight">
                             {exercise.nameFr}
