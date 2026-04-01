@@ -1,7 +1,7 @@
 "use server";
 
 import { redirect } from "next/navigation";
-import { revalidateTag } from "next/cache";
+import { updateTag } from "next/cache";
 import { createClient } from "@/lib/supabase/server";
 import { prisma } from "@/lib/prisma";
 
@@ -58,8 +58,8 @@ export async function createSession(input: SessionInput) {
     return created;
   });
 
-  revalidateTag(`sessions-${user.id}`, 'max');
-  revalidateTag(`dashboard-${user.id}`, 'max');
+  updateTag(`sessions-${user.id}`);
+  updateTag(`dashboard-${user.id}`);
   redirect(`/sessions/${session.id}`);
 }
 
@@ -107,9 +107,9 @@ export async function updateSession(sessionId: string, input: SessionInput) {
     }
   });
 
-  revalidateTag(`session-${sessionId}`, 'max');
-  revalidateTag(`sessions-${user.id}`, 'max');
-  revalidateTag(`dashboard-${user.id}`, 'max');
+  updateTag(`session-${sessionId}`);
+  updateTag(`sessions-${user.id}`);
+  updateTag(`dashboard-${user.id}`);
   redirect(`/sessions/${sessionId}`);
 }
 
@@ -166,9 +166,170 @@ export async function duplicateSession(sessionId: string, newDate: string) {
     return created;
   });
 
-  revalidateTag(`sessions-${user.id}`, 'max');
-  revalidateTag(`dashboard-${user.id}`, 'max');
+  updateTag(`sessions-${user.id}`);
+  updateTag(`dashboard-${user.id}`);
   redirect("/sessions");
+}
+
+export async function updateSessionInfo(
+  sessionId: string,
+  data: {
+    name?: string | null;
+    date?: string;
+    durationMinutes?: number | null;
+    notes?: string | null;
+  },
+) {
+  const supabase = await createClient();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+  if (!user) redirect("/login");
+
+  const existing = await prisma.session.findUnique({
+    where: { id: sessionId, userId: user.id },
+    select: { id: true },
+  });
+  if (!existing) throw new Error("Session introuvable");
+
+  const updateData: Record<string, unknown> = {};
+  if ("name" in data) updateData.name = data.name || null;
+  if ("date" in data) updateData.date = new Date(data.date!);
+  if ("durationMinutes" in data) updateData.durationMinutes = data.durationMinutes;
+  if ("notes" in data) updateData.notes = data.notes || null;
+
+  await prisma.session.update({
+    where: { id: sessionId },
+    data: updateData,
+  });
+
+  updateTag(`session-${sessionId}`);
+  updateTag(`sessions-${user.id}`);
+  updateTag(`dashboard-${user.id}`);
+}
+
+export async function updateSet(
+  setId: string,
+  data: {
+    reps?: number | null;
+    weightKg?: number | null;
+  },
+) {
+  const supabase = await createClient();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+  if (!user) redirect("/login");
+
+  const set = await prisma.set.findUnique({
+    where: { id: setId },
+    include: { session: { select: { userId: true, id: true } } },
+  });
+  if (!set || set.session.userId !== user.id) throw new Error("Set introuvable");
+
+  await prisma.set.update({
+    where: { id: setId },
+    data,
+  });
+
+  updateTag(`session-${set.session.id}`);
+  updateTag(`sessions-${user.id}`);
+  updateTag(`dashboard-${user.id}`);
+}
+
+export async function updateSessionExercise(
+  sessionId: string,
+  exerciseId: string,
+  sets: { reps?: number | null; weightKg?: number | null }[],
+) {
+  const supabase = await createClient();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+  if (!user) redirect("/login");
+
+  const existing = await prisma.session.findUnique({
+    where: { id: sessionId, userId: user.id },
+    select: { id: true },
+  });
+  if (!existing) throw new Error("Session introuvable");
+
+  await prisma.$transaction(async (tx) => {
+    await tx.set.deleteMany({ where: { sessionId, exerciseId } });
+    if (sets.length > 0) {
+      await tx.set.createMany({
+        data: sets.map((set, i) => ({
+          sessionId,
+          exerciseId,
+          setNumber: i + 1,
+          reps: set.reps ?? null,
+          weightKg: set.weightKg ?? null,
+        })),
+      });
+    }
+  });
+
+  updateTag(`session-${sessionId}`);
+  updateTag(`sessions-${user.id}`);
+  updateTag(`dashboard-${user.id}`);
+}
+
+export async function addExercisesToSession(sessionId: string, exerciseIds: string[]) {
+  const supabase = await createClient();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+  if (!user) redirect("/login");
+
+  const existing = await prisma.session.findUnique({
+    where: { id: sessionId, userId: user.id },
+    select: { id: true },
+  });
+  if (!existing) throw new Error("Session introuvable");
+
+  const alreadyAdded = await prisma.set.findMany({
+    where: { sessionId, exerciseId: { in: exerciseIds } },
+    select: { exerciseId: true },
+    distinct: ["exerciseId"],
+  });
+  const existingIds = new Set(alreadyAdded.map((s) => s.exerciseId));
+  const toInsert = exerciseIds.filter((id) => !existingIds.has(id));
+
+  if (toInsert.length > 0) {
+    await prisma.set.createMany({
+      data: toInsert.map((exerciseId) => ({
+        sessionId,
+        exerciseId,
+        setNumber: 1,
+        reps: null,
+        weightKg: null,
+      })),
+    });
+  }
+
+  updateTag(`session-${sessionId}`);
+  updateTag(`sessions-${user.id}`);
+  updateTag(`dashboard-${user.id}`);
+}
+
+export async function removeExerciseFromSession(sessionId: string, exerciseId: string) {
+  const supabase = await createClient();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+  if (!user) redirect("/login");
+
+  const existing = await prisma.session.findUnique({
+    where: { id: sessionId, userId: user.id },
+    select: { id: true },
+  });
+  if (!existing) throw new Error("Session introuvable");
+
+  await prisma.set.deleteMany({ where: { sessionId, exerciseId } });
+
+  updateTag(`session-${sessionId}`);
+  updateTag(`sessions-${user.id}`);
+  updateTag(`dashboard-${user.id}`);
 }
 
 export async function deleteSession(sessionId: string) {
@@ -186,8 +347,8 @@ export async function deleteSession(sessionId: string) {
 
   await prisma.session.delete({ where: { id: sessionId } });
 
-  revalidateTag(`session-${sessionId}`, 'max');
-  revalidateTag(`sessions-${user.id}`, 'max');
-  revalidateTag(`dashboard-${user.id}`, 'max');
+  updateTag(`session-${sessionId}`);
+  updateTag(`sessions-${user.id}`);
+  updateTag(`dashboard-${user.id}`);
   redirect("/sessions");
 }

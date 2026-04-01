@@ -1,13 +1,27 @@
 "use client";
 
-import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useState, useTransition } from "react";
 import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
-import { ArrowLeft, Clock, Pencil, StickyNote, Dumbbell } from "lucide-react";
-import { DeleteSessionButton } from "@/features/sessions/components/DeleteSessionButton";
-import { DuplicateSessionModal } from "@/features/sessions/components/DuplicateSessionModal";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
+import { Plus } from "lucide-react";
+import {
+  addExercisesToSession,
+  removeExerciseFromSession,
+  updateSessionExercise,
+} from "@/features/sessions/services/sessions";
+import { ExercisePickerModal } from "@/features/sessions/components/ExercisePickerModal";
+import {
+  SessionExerciseCard,
+  type SessionExerciseData,
+} from "@/features/sessions/components/SessionExerciseCard";
+import { SessionInfoSection } from "@/features/sessions/components/SessionInfoSection";
+import { SessionExerciseItem } from "@/features/sessions/components/SessionExerciseItem";
 import type { SessionDetailViewProps } from "@/features/sessions/types";
 
 export function SessionDetailView({
@@ -17,184 +31,165 @@ export function SessionDetailView({
   const router = useRouter();
   const [isPending, startTransition] = useTransition();
   const [pendingHref, setPendingHref] = useState<string | null>(null);
-
-  const loadingHref = isPending ? pendingHref : null;
-
-  function navigate(href: string) {
-    setPendingHref(href);
-    startTransition(() => router.push(href));
-  }
+  const [exerciseModalOpen, setExerciseModalOpen] = useState(false);
+  const [editingExercise, setEditingExercise] =
+    useState<SessionExerciseData | null>(null);
 
   const exerciseGroups = Object.values(setsByExercise);
+  const exerciseIds = exerciseGroups.map(({ exercise }) => exercise.id);
+  const isNavigatingBack = isPending && pendingHref === "/sessions";
 
-  const dateLabel = new Date(session.date).toLocaleDateString("fr-FR", {
-    weekday: "long",
-    day: "numeric",
-    month: "long",
-    year: "numeric",
-  });
+  function navigateBack() {
+    setPendingHref("/sessions");
+    startTransition(() => router.push("/sessions"));
+  }
+
+  // ── Exercise editing ───────────────────────────────────────────────────────
+
+  function openExerciseModal(exerciseId: string) {
+    const group = setsByExercise[exerciseId];
+    if (!group) return;
+    setEditingExercise({
+      exerciseId: group.exercise.id,
+      nameFr: group.exercise.nameFr,
+      targetMuscle: group.exercise.targetMuscle,
+      equipment: group.exercise.equipment,
+      sets: group.sets.map((set) => ({
+        reps: set.reps != null ? String(set.reps) : "",
+        weightKg: set.weightKg != null ? String(set.weightKg) : "",
+      })),
+    });
+    setExerciseModalOpen(true);
+  }
+
+  function handleExerciseSetChange(
+    setIndex: number,
+    field: "reps" | "weightKg",
+    value: string,
+  ) {
+    if (!editingExercise) return;
+    setEditingExercise({
+      ...editingExercise,
+      sets: editingExercise.sets.map((set, i) =>
+        i === setIndex ? { ...set, [field]: value } : set,
+      ),
+    });
+  }
+
+  function handleExerciseAddSet() {
+    if (!editingExercise) return;
+    setEditingExercise({
+      ...editingExercise,
+      sets: [...editingExercise.sets, { reps: "", weightKg: "" }],
+    });
+  }
+
+  function handleExerciseRemoveSet(setIndex: number) {
+    if (!editingExercise) return;
+    setEditingExercise({
+      ...editingExercise,
+      sets: editingExercise.sets.filter((_, i) => i !== setIndex),
+    });
+  }
+
+  function handleExerciseSave() {
+    if (!editingExercise) return;
+    startTransition(async () => {
+      await updateSessionExercise(
+        session.id,
+        editingExercise.exerciseId,
+        editingExercise.sets.map((set) => ({
+          reps: set.reps ? Number(set.reps) : null,
+          weightKg: set.weightKg
+            ? Number(set.weightKg.replace(",", "."))
+            : null,
+        })),
+      );
+      setExerciseModalOpen(false);
+      setEditingExercise(null);
+      router.refresh();
+    });
+  }
+
+  function handleExerciseRemove() {
+    if (!editingExercise) return;
+    startTransition(async () => {
+      await removeExerciseFromSession(session.id, editingExercise.exerciseId);
+      setExerciseModalOpen(false);
+      setEditingExercise(null);
+      router.refresh();
+    });
+  }
+
+  function handleAddExercises(
+    exercises: {
+      id: string;
+      nameFr: string;
+      targetMuscle: string;
+      equipment: string | null;
+    }[],
+  ) {
+    startTransition(async () => {
+      await addExercisesToSession(
+        session.id,
+        exercises.map((e) => e.id),
+      );
+      router.refresh();
+    });
+  }
 
   return (
     <div className="space-y-8 max-w-2xl">
-      <div className="flex items-start gap-3">
-        <Button
-          variant="ghost"
-          size="icon"
-          className="mt-1 shrink-0"
-          aria-label="Retour aux séances"
-          isLoading={loadingHref === "/sessions"}
-          onClick={() => navigate("/sessions")}
-        >
-          {loadingHref !== "/sessions" && <ArrowLeft className="size-4" />}
-        </Button>
-        <div className="flex-1 min-w-0">
-          <p className="text-sm font-medium text-muted-foreground uppercase tracking-widest mb-1">
-            Détail de la séance
-          </p>
-          {session.name ? (
-            <>
-              <h1 className="text-2xl font-extrabold tracking-tight">
-                {session.name}
-              </h1>
-              <p className="text-sm text-muted-foreground mt-0.5 capitalize">
-                {dateLabel}
-              </p>
-            </>
-          ) : (
-            <h1 className="text-2xl font-extrabold tracking-tight capitalize">
-              {dateLabel}
-            </h1>
-          )}
-          <div className="flex items-center gap-3 mt-2">
-            <Badge variant="secondary">
-              {exerciseGroups.length} exercice
-              {exerciseGroups.length > 1 ? "s" : ""}
-            </Badge>
-            {session.durationMinutes && (
-              <div className="flex items-center gap-1.5 text-sm text-muted-foreground flex-nowrap">
-                <Clock className="size-3.5" />
-                <span className="text-sm text-muted-foreground">
-                  {session.durationMinutes}
-                </span>
-                <span className="text-sm text-muted-foreground">min</span>
-              </div>
-            )}
-            <div className="flex items-center gap-1.5 text-sm text-muted-foreground flex-nowrap">
-              <span className="text-sm text-muted-foreground">
-                {session.sets.length}
-              </span>
-              <span className="text-sm text-muted-foreground">
-                série{session.sets.length > 1 ? "s" : ""}
-              </span>
-            </div>
-          </div>
-        </div>
-        <div className="flex items-center gap-1 mt-1 shrink-0">
-          <DuplicateSessionModal sessionId={session.id} />
-          <Button
-            variant="outline"
-            size="icon"
-            aria-label="Modifier la séance"
-            isLoading={loadingHref === `/sessions/${session.id}/edit`}
-            onClick={() => navigate(`/sessions/${session.id}/edit`)}
-          >
-            {loadingHref !== `/sessions/${session.id}/edit` && <Pencil className="size-4" />}
-          </Button>
-          <DeleteSessionButton sessionId={session.id} />
-        </div>
-      </div>
+      <SessionInfoSection
+        session={session}
+        exerciseCount={exerciseGroups.length}
+        onBack={navigateBack}
+        isNavigatingBack={isNavigatingBack}
+      />
 
-      {session.notes && (
-        <div className="flex items-start gap-3 p-4 rounded-xl border border-border/60 bg-card text-sm">
-          <StickyNote className="size-4 mt-0.5 text-primary shrink-0" />
-          <p className="text-muted-foreground leading-relaxed">
-            {session.notes}
-          </p>
-        </div>
-      )}
+      <ExercisePickerModal onAdd={handleAddExercises} disabledIds={exerciseIds}>
+        <Button variant="default" className="gap-2 w-full">
+          <Plus className="size-4" />
+          Ajouter exercice(s)
+        </Button>
+      </ExercisePickerModal>
 
       <div className="space-y-5">
         {exerciseGroups.map(({ exercise, sets }) => (
-          <div
+          <SessionExerciseItem
             key={exercise.id}
-            className="rounded-xl border border-border/60 bg-card overflow-hidden"
-          >
-            <div className="flex items-center gap-3 px-4 py-3 border-b border-border/60 bg-muted/30">
-              <div className="flex items-center justify-center size-7 rounded-md bg-primary/10 shrink-0">
-                <Dumbbell className="size-3.5 text-primary" />
-              </div>
-              <Link
-                href={`/exercises/${exercise.id}`}
-                className="font-semibold text-sm hover:text-primary transition-colors flex-1 min-w-0 truncate"
-              >
-                {exercise.nameFr}
-              </Link>
-              {exercise.equipment && (
-                <Badge
-                  variant="outline"
-                  className="text-xs border-border/60 ml-auto"
-                >
-                  {exercise.equipment}
-                </Badge>
-              )}
-            </div>
-
-            <table className="w-full text-sm">
-              <thead>
-                <tr className="border-b border-border/40">
-                  <th className="text-left px-4 py-2.5 text-xs font-semibold text-muted-foreground uppercase tracking-wider">
-                    Série
-                  </th>
-                  <th className="text-right px-4 py-2.5 text-xs font-semibold text-muted-foreground uppercase tracking-wider">
-                    Reps
-                  </th>
-                  <th className="text-right px-4 py-2.5 text-xs font-semibold text-muted-foreground uppercase tracking-wider">
-                    Poids
-                  </th>
-                </tr>
-              </thead>
-              <tbody>
-                {sets.map((set, i) => (
-                  <tr
-                    key={set.id}
-                    className={`hover:bg-muted/20 transition-colors ${i < sets.length - 1 ? "border-b border-border/30" : ""}`}
-                  >
-                    <td className="px-4 py-3">
-                      <span className="inline-flex items-center justify-center size-6 rounded-md bg-primary/10 text-primary text-xs font-bold">
-                        {set.setNumber}
-                      </span>
-                    </td>
-                    <td className="px-4 py-3 text-right font-medium">
-                      {set.reps != null ? (
-                        <span>
-                          {set.reps}{" "}
-                          <span className="text-muted-foreground text-xs">
-                            reps
-                          </span>
-                        </span>
-                      ) : (
-                        "—"
-                      )}
-                    </td>
-                    <td className="px-4 py-3 text-right font-medium">
-                      {set.weightKg != null ? (
-                        <span className="text-accent font-semibold">
-                          {set.weightKg}{" "}
-                          <span className="text-muted-foreground text-xs font-normal">
-                            kg
-                          </span>
-                        </span>
-                      ) : (
-                        "—"
-                      )}
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
+            exercise={exercise}
+            sets={sets}
+            onEdit={() => openExerciseModal(exercise.id)}
+          />
         ))}
       </div>
+
+      <Dialog open={exerciseModalOpen} onOpenChange={setExerciseModalOpen}>
+        <DialogContent className="max-w-2xl">
+          <DialogHeader>
+            <DialogTitle>Modifier l&apos;exercice</DialogTitle>
+          </DialogHeader>
+          {editingExercise && (
+            <div className="space-y-3">
+              <SessionExerciseCard
+                exercise={editingExercise}
+                onRemove={handleExerciseRemove}
+                onSetChange={handleExerciseSetChange}
+                onAddSet={handleExerciseAddSet}
+                onRemoveSet={handleExerciseRemoveSet}
+              />
+              <Button
+                className="w-full"
+                onClick={handleExerciseSave}
+                isLoading={isPending}
+              >
+                Valider les modifications
+              </Button>
+            </div>
+          )}
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }
