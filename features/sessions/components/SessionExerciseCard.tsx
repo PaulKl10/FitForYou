@@ -1,10 +1,15 @@
 "use client";
 
-import { Dumbbell, Plus, Trash2, X } from "lucide-react";
+import { useEffect, useState } from "react";
+import { Dumbbell, Plus, Trash2, X, History } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { cn } from "@/lib/utils";
+import {
+  getExerciseLastHistory,
+  type ExerciseHistory,
+} from "@/features/sessions/services/exercise-history";
 
 export interface SetData {
   reps: string;
@@ -36,6 +41,21 @@ interface SessionExerciseCardProps {
   onRemoveSet: (setIndex: number) => void;
   dragHandle?: React.ReactNode;
   setErrors?: SetFieldErrors[];
+  currentSessionId?: string;
+}
+
+function formatSet(set: ExerciseHistory["sets"][number]) {
+  const parts: string[] = [];
+  if (set.reps != null) parts.push(`${set.reps} reps`);
+  if (set.weightKg != null) parts.push(`${set.weightKg} kg`);
+  return parts.length > 0 ? parts.join(" · ") : "—";
+}
+
+function formatDate(date: Date) {
+  return new Date(date).toLocaleDateString("fr-FR", {
+    day: "numeric",
+    month: "short",
+  });
 }
 
 export function SessionExerciseCard({
@@ -46,7 +66,19 @@ export function SessionExerciseCard({
   onRemoveSet,
   dragHandle,
   setErrors,
+  currentSessionId,
 }: SessionExerciseCardProps) {
+  const [history, setHistory] = useState<ExerciseHistory | null | undefined>(
+    undefined,
+  );
+
+  useEffect(() => {
+    if (!currentSessionId) return;
+    getExerciseLastHistory(exercise.exerciseId, currentSessionId).then(
+      setHistory,
+    );
+  }, [exercise.exerciseId, currentSessionId]);
+
   return (
     <div className="rounded-xl border border-border/60 bg-card">
       {/* Header */}
@@ -80,6 +112,44 @@ export function SessionExerciseCard({
           <Trash2 className="size-3.5" />
         </Button>
       </div>
+
+      {/* Last session history */}
+      {currentSessionId && history !== undefined && (
+        <div className="px-3 py-2 border-b border-border/40 bg-muted/10">
+          {history === null ? (
+            <p className="text-xs text-muted-foreground/60 italic">
+              Aucun historique
+            </p>
+          ) : (
+            <div className="space-y-1">
+              <div className="flex items-center gap-1.5 text-xs text-muted-foreground">
+                <History className="size-3" />
+                <span className="font-medium">
+                  {history.sessionName ?? formatDate(history.sessionDate)}
+                </span>
+                {history.sessionName && (
+                  <span className="text-muted-foreground/60">
+                    · {formatDate(history.sessionDate)}
+                  </span>
+                )}
+              </div>
+              <div className="flex flex-wrap gap-x-3 gap-y-0.5">
+                {history.sets.map((set) => (
+                  <span
+                    key={set.setNumber}
+                    className="text-xs text-muted-foreground"
+                  >
+                    <span className="text-muted-foreground/60 mr-1">
+                      {set.setNumber}.
+                    </span>
+                    {formatSet(set)}
+                  </span>
+                ))}
+              </div>
+            </div>
+          )}
+        </div>
+      )}
 
       {/* Sets */}
       <div className="p-3 space-y-2">

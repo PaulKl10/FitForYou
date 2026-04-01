@@ -178,6 +178,7 @@ export function SessionDetailView({
                 onSetChange={handleExerciseSetChange}
                 onAddSet={handleExerciseAddSet}
                 onRemoveSet={handleExerciseRemoveSet}
+                currentSessionId={session.id}
               />
               <Button
                 className="w-full"
