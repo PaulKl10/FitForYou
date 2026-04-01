@@ -44,10 +44,6 @@ export function ExercisesFilters({
   const [q, setQ] = useState(searchParams.get("q") ?? "");
   const deferredQ = useDeferredValue(q);
 
-  useEffect(() => {
-    setQ(searchParams.get("q") ?? "");
-  }, [searchParams]);
-
   const replaceURL = useCallback(
     (next: URLSearchParams) => {
       const nextQuery = next.toString();

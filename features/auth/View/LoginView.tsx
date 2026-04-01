@@ -15,6 +15,7 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { Dumbbell } from "lucide-react";
+import Image from "next/image";
 
 export function LoginView() {
   const [error, setError] = useState<string | null>(null);
@@ -32,16 +33,23 @@ export function LoginView() {
     <div className="min-h-screen flex items-center justify-center bg-background px-4">
       <div className="w-full max-w-sm space-y-8">
         <div className="flex flex-col items-center gap-3 text-center">
-          <div className="flex items-center justify-center size-14 rounded-2xl bg-primary text-primary-foreground shadow-lg shadow-primary/25">
-            <Dumbbell className="size-7" />
+          <div className="flex items-center justify-center size-14 rounded-2xl shadow-lg shadow-primary/25">
+            <Image
+              src="/fit-for-you-01.png"
+              alt="FitForYou logo"
+              width={56}
+              height={56}
+              className="rounded-lg shrink-0"
+            />
           </div>
           <div>
-            <h1 className="text-2xl font-extrabold tracking-tight">
-              FitForYou
-            </h1>
-            <p className="text-sm text-muted-foreground mt-1">
-              Tracker tes séances de sport
-            </p>
+            <Image
+              src="/fit-for-you-06.png"
+              alt="Fit For You"
+              width={192}
+              height={48}
+              className="dark:invert h-12! w-auto max-w-none object-contain object-left shrink-0"
+            />
           </div>
         </div>
 
@@ -50,9 +58,7 @@ export function LoginView() {
             <CardTitle className="text-xl font-semibold font-sans">
               Connexion
             </CardTitle>
-            <CardDescription>
-              Accède à tes séances
-            </CardDescription>
+            <CardDescription>Accède à tes séances</CardDescription>
           </CardHeader>
           <form
             onSubmit={(event) => {
