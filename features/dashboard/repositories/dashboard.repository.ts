@@ -37,7 +37,10 @@ async function _getDashboardData(userId: string) {
 
   // Most recent session per exercise (up to 6 distinct exercises)
   const latestPerExercise = await prisma.set.findMany({
-    where: { session: { userId } },
+    where: {
+      session: { userId },
+      OR: [{ reps: { not: null } }, { weightKg: { not: null } }],
+    },
     orderBy: { session: { date: "desc" } },
     distinct: ["exerciseId"],
     take: 6,
