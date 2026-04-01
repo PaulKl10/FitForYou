@@ -114,9 +114,14 @@ export function SessionExerciseCard({
       </div>
 
       {/* Last session history */}
-      {currentSessionId && history !== undefined && (
+      {currentSessionId && (
         <div className="px-3 py-2 border-b border-border/40 bg-muted/10">
-          {history === null ? (
+          {history === undefined ? (
+            <div className="space-y-1.5">
+              <div className="h-3 w-24 rounded bg-muted animate-pulse" />
+              <div className="h-3 w-40 rounded bg-muted animate-pulse" />
+            </div>
+          ) : history === null ? (
             <p className="text-xs text-muted-foreground/60 italic">
               Aucun historique
             </p>
@@ -153,96 +158,98 @@ export function SessionExerciseCard({
 
       {/* Sets */}
       <div className="p-3 space-y-2">
-        {exercise.sets.length > 0 && (
-          <div className="grid grid-cols-[2rem_1fr_1fr_2rem] gap-2 px-1">
-            <span className="text-xs font-semibold text-muted-foreground text-center">
-              #
-            </span>
-            <span className="text-xs font-semibold text-muted-foreground">
-              Reps
-            </span>
-            <span className="text-xs font-semibold text-muted-foreground">
-              Poids (kg)
-            </span>
-            <span />
-          </div>
-        )}
-
-        {exercise.sets.map((set, i) => {
-          const err = setErrors?.[i];
-          const hasError = !!(err?.reps || err?.weightKg);
-
-          return (
-            <div key={i} className="space-y-1">
-              <div
-                className={cn(
-                  "grid grid-cols-[2rem_1fr_1fr_2rem] gap-2",
-                  hasError ? "items-start" : "items-center",
-                )}
-              >
-                <span
-                  className={cn(
-                    "flex items-center justify-center size-6 rounded-md bg-primary/10 text-primary text-xs font-bold mx-auto",
-                    hasError && "mt-1",
-                  )}
-                >
-                  {i + 1}
-                </span>
-                <div className="space-y-1">
-                  <Input
-                    type="text"
-                    inputMode="numeric"
-                    pattern="[0-9]*"
-                    placeholder="—"
-                    value={set.reps}
-                    onChange={(e) => onSetChange(i, "reps", e.target.value)}
-                    aria-invalid={!!err?.reps}
-                    className={cn(
-                      "h-8 text-base",
-                      err?.reps &&
-                        "border-destructive focus-visible:ring-destructive",
-                    )}
-                  />
-                  {err?.reps && (
-                    <p className="text-xs text-destructive">{err.reps}</p>
-                  )}
-                </div>
-                <div className="space-y-1">
-                  <Input
-                    type="text"
-                    inputMode="decimal"
-                    pattern="[0-9]*[.,]?[0-9]*"
-                    placeholder="—"
-                    value={set.weightKg}
-                    onChange={(e) => onSetChange(i, "weightKg", e.target.value)}
-                    aria-invalid={!!err?.weightKg}
-                    className={cn(
-                      "h-8 text-base",
-                      err?.weightKg &&
-                        "border-destructive focus-visible:ring-destructive",
-                    )}
-                  />
-                  {err?.weightKg && (
-                    <p className="text-xs text-destructive">{err.weightKg}</p>
-                  )}
-                </div>
-                <Button
-                  type="button"
-                  variant="ghost"
-                  size="icon"
-                  className={cn(
-                    "size-7 text-muted-foreground hover:text-destructive",
-                    hasError && "mt-1",
-                  )}
-                  onClick={() => onRemoveSet(i)}
-                  aria-label="Supprimer la série"
-                >
-                  <X className="size-3.5" />
-                </Button>
-              </div>
+        <div className="max-h-[50vh] overflow-y-auto space-y-2">
+          {exercise.sets.length > 0 && (
+            <div className="grid grid-cols-[2rem_1fr_1fr_2rem] gap-2 px-1">
+              <span className="text-xs font-semibold text-muted-foreground text-center">
+                #
+              </span>
+              <span className="text-xs font-semibold text-muted-foreground">
+                Reps
+              </span>
+              <span className="text-xs font-semibold text-muted-foreground">
+                Poids (kg)
+              </span>
+              <span />
             </div>
-          );
-        })}
+          )}
+          {exercise.sets.map((set, i) => {
+            const err = setErrors?.[i];
+            const hasError = !!(err?.reps || err?.weightKg);
+            return (
+              <div key={i} className="space-y-1">
+                <div
+                  className={cn(
+                    "grid grid-cols-[2rem_1fr_1fr_2rem] gap-2",
+                    hasError ? "items-start" : "items-center",
+                  )}
+                >
+                  <span
+                    className={cn(
+                      "flex items-center justify-center size-6 rounded-md bg-primary/10 text-primary text-xs font-bold mx-auto",
+                      hasError && "mt-1",
+                    )}
+                  >
+                    {i + 1}
+                  </span>
+                  <div className="space-y-1">
+                    <Input
+                      type="text"
+                      inputMode="numeric"
+                      pattern="[0-9]*"
+                      placeholder="—"
+                      value={set.reps}
+                      onChange={(e) => onSetChange(i, "reps", e.target.value)}
+                      aria-invalid={!!err?.reps}
+                      className={cn(
+                        "h-8 text-base",
+                        err?.reps &&
+                          "border-destructive focus-visible:ring-destructive",
+                      )}
+                    />
+                    {err?.reps && (
+                      <p className="text-xs text-destructive">{err.reps}</p>
+                    )}
+                  </div>
+                  <div className="space-y-1">
+                    <Input
+                      type="text"
+                      inputMode="decimal"
+                      pattern="[0-9]*[.,]?[0-9]*"
+                      placeholder="—"
+                      value={set.weightKg}
+                      onChange={(e) =>
+                        onSetChange(i, "weightKg", e.target.value)
+                      }
+                      aria-invalid={!!err?.weightKg}
+                      className={cn(
+                        "h-8 text-base",
+                        err?.weightKg &&
+                          "border-destructive focus-visible:ring-destructive",
+                      )}
+                    />
+                    {err?.weightKg && (
+                      <p className="text-xs text-destructive">{err.weightKg}</p>
+                    )}
+                  </div>
+                  <Button
+                    type="button"
+                    variant="ghost"
+                    size="icon"
+                    className={cn(
+                      "size-7 text-muted-foreground hover:text-destructive",
+                      hasError && "mt-1",
+                    )}
+                    onClick={() => onRemoveSet(i)}
+                    aria-label="Supprimer la série"
+                  >
+                    <X className="size-3.5" />
+                  </Button>
+                </div>
+              </div>
+            );
+          })}
+        </div>
 
         <Button
           type="button"
