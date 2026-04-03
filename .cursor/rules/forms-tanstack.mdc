@@ -1,0 +1,22 @@
+---
+description: Formulaires FitForYou — TanStack Form obligatoire pour le nouveau code
+alwaysApply: true
+---
+
+# Formulaires — TanStack Form
+
+## Règle
+
+- Utiliser **`@tanstack/react-form`** pour tout **nouveau** formulaire et lors du **refactor** d’un écran avec plusieurs champs ou validation non triviale.
+- Ne **pas** introduire d’autres bibliothèques de formulaires sur du nouveau code (ex. éviter d’ajouter des usages `react-hook-form` hors migration d’existant).
+
+## Intégration projet
+
+- **Server Actions** : restent dans `features/*/services/` (`'use server'`). Le composant client appelle l’action depuis le handler de soumission TanStack Form (async).
+- **Validation** : **Zod** est déjà dans le projet ; l’aligner avec TanStack Form (validators / schémas) pour une seule source de vérité.
+- **UI** : composants **shadcn/ui** (`Input`, `Button`, `Field`, labels, messages d’erreur) branchés via l’API TanStack Form (`form.Field`, `form.Subscribe`, etc.).
+
+## Référence
+
+- Package : `@tanstack/react-form` (déjà en dépendance).
+- Documentation : [TanStack Form](https://tanstack.com/form/latest).

@@ -5,7 +5,7 @@ alwaysApply: true
 
 # FitForYou — Architecture
 
-App web de tracking de séances de gym. Stack : Next.js 16 (App Router), Supabase Auth, Prisma 7 + PostgreSQL, Tailwind CSS v4, shadcn/ui, TypeScript.
+App web de tracking de séances de gym. Stack : Next.js 16 (App Router), Supabase Auth, Prisma 7 + PostgreSQL, Tailwind CSS v4, shadcn/ui, **TanStack Form** (`@tanstack/react-form`) pour les formulaires, TypeScript.
 
 ## Structure
 
@@ -59,6 +59,7 @@ lib/
 - **`features/*/View/`** = composants de présentation (peuvent être client ou serveur)
 - **`features/*/services/`** = Server Actions (`'use server'`)
 - **Types** dans `features/<domaine>/types/` (barrel `index.ts`) : `GetPayload` Prisma 7, props des Views du domaine ; imports du type `@/features/<domaine>/types`
+- **Formulaires** : préférer **TanStack Form** (`@tanstack/react-form`) pour le state, validation et soumission vers les Server Actions dans `features/*/services/` — voir la règle dédiée `.cursor/rules/forms-tanstack.mdc`.
 
 ## Variables d'environnement
 

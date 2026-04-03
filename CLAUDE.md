@@ -5,7 +5,7 @@ Ce fichier donne le contexte et les conventions à respecter pour contribuer au 
 ## Contexte projet
 
 - Application web de tracking de séances de gym.
-- Stack: Next.js 16 (App Router), TypeScript, Supabase Auth, Prisma 7 + PostgreSQL, Tailwind CSS v4, shadcn/ui.
+- Stack: Next.js 16 (App Router), TypeScript, Supabase Auth, Prisma 7 + PostgreSQL, Tailwind CSS v4, shadcn/ui, **TanStack Form** (`@tanstack/react-form`) pour les formulaires.
 - Les données d'exercices sont dans `lib/exercises.json`.
 
 ## Règle critique Next.js
@@ -45,6 +45,13 @@ Les fichiers de routes dans `app/` doivent rester minimalistes (3-5 lignes idéa
 - Définir les types du domaine dans `features/<domaine>/types/` (souvent un `index.ts` qui réexporte).
 - Y placer les alias Prisma (`GetPayload` / modèles générés) et les props des Views de ce domaine.
 - Importer depuis le barrel du domaine, ex. `@/features/exercises/types`.
+
+### 5) Formulaires (TanStack Form)
+
+- Utiliser **`@tanstack/react-form`** pour les nouveaux formulaires et, lors des refactors, pour remplacer progressivement l’état local / autres libs sur les écrans à champs nombreux.
+- La soumission appelle les **Server Actions** déjà définies dans `features/*/services/` (pas de logique métier Prisma dans le composant de formulaire).
+- La validation peut s’appuyer sur **Zod** (déjà dans le projet), en cohérence avec TanStack Form.
+- Réutiliser les composants **shadcn** (`Input`, `Button`, `Field`, etc.) en les branchant sur l’API du form (`form.Field`, etc.).
 
 ## Structure de référence
 
@@ -108,5 +115,5 @@ Variables attendues:
 
 Mettre à jour ce document quand:
 - l'architecture évolue (nouveaux dossiers/conventions),
-- la stack change,
+- la stack change (ex. conventions formulaires),
 - les règles d'organisation ou de contribution changent.

@@ -11,6 +11,7 @@ alwaysApply: false
 - **shadcn/ui** pour les composants (Button, Card, Input, etc.)
 - **Tailwind CSS v4** (config CSS-first, pas de tailwind.config.js)
 - **lucide-react** pour les icônes
+- **Formulaires** : **TanStack Form** (`@tanstack/react-form`) — voir `.cursor/rules/forms-tanstack.mdc` (règle toujours appliquée).
 
 ## Import des composants
 
