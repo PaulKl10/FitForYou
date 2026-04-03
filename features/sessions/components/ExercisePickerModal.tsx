@@ -3,6 +3,7 @@
 import {
   useDeferredValue,
   useEffect,
+  useRef,
   useState,
   useTransition,
 } from "react";
@@ -89,6 +90,7 @@ export function ExercisePickerModal({
 
   const [isInit, startInit] = useTransition();
   const [isFetching, startFetch] = useTransition();
+  const exercisesScrollRef = useRef<HTMLDivElement>(null);
 
   // Chargement initial des options de filtres
   useEffect(() => {
@@ -124,6 +126,10 @@ export function ExercisePickerModal({
   useEffect(() => {
     setPage(1);
   }, [deferredQuery]);
+
+  useEffect(() => {
+    exercisesScrollRef.current?.scrollTo({ top: 0 });
+  }, [page]);
 
   function handleMusclesChange(values: string[]) {
     setMuscles(values);
@@ -237,7 +243,7 @@ export function ExercisePickerModal({
             </div>
 
             {/* Exercise grid */}
-            <div className="flex-1 overflow-y-auto">
+            <div ref={exercisesScrollRef} className="flex-1 overflow-y-auto">
               {isInit ? (
                 <div className="flex items-center justify-center h-full">
                   <Loader2 className="size-6 animate-spin text-muted-foreground" />

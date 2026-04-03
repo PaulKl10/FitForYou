@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { Dumbbell, Pencil } from "lucide-react";
+import { Dumbbell, Pencil, Plus } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import type { ExerciseGroup } from "@/features/sessions/types";
@@ -8,12 +8,14 @@ interface SessionExerciseItemProps {
   exercise: ExerciseGroup["exercise"];
   sets: ExerciseGroup["sets"];
   onEdit: () => void;
+  onAddSet: () => void;
 }
 
 export function SessionExerciseItem({
   exercise,
   sets,
   onEdit,
+  onAddSet,
 }: SessionExerciseItemProps) {
   return (
     <div className="rounded-xl border border-border/60 bg-card overflow-hidden">
@@ -29,6 +31,14 @@ export function SessionExerciseItem({
             >
               {exercise.nameFr}
             </Link>
+            {exercise.targetMuscle && (
+              <Badge
+                variant="default"
+                className="max-w-24 truncate text-xs border-border/60 shrink-0 md:ml-auto"
+              >
+                {exercise.targetMuscle}
+              </Badge>
+            )}
             {exercise.equipment && (
               <Badge
                 variant="outline"
@@ -39,14 +49,26 @@ export function SessionExerciseItem({
             )}
           </div>
         </div>
-        <Button
-          variant="outline"
-          size="icon"
-          className="size-8 text-xs"
-          onClick={onEdit}
-        >
-          <Pencil className="size-3.5" />
-        </Button>
+        <div className="flex items-center gap-2">
+          <Button
+            variant="default"
+            size="icon"
+            className="size-8 text-xs"
+            onClick={onAddSet}
+            aria-label="Ajouter une série"
+          >
+            <Plus className="size-3.5" color="white" strokeWidth={3} />
+          </Button>
+          <Button
+            variant="outline"
+            size="icon"
+            className="size-8 text-xs"
+            onClick={onEdit}
+            aria-label="Modifier l'exercice"
+          >
+            <Pencil className="size-3.5" />
+          </Button>
+        </div>
       </div>
 
       <table className="w-full text-sm">

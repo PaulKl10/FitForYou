@@ -19,9 +19,12 @@ import { ExercisePickerModal } from "@/features/sessions/components/ExercisePick
 import {
   SessionExerciseCard,
   type SessionExerciseData,
+  type SetFieldErrors,
 } from "@/features/sessions/components/SessionExerciseCard";
 import { SessionInfoSection } from "@/features/sessions/components/SessionInfoSection";
 import { SessionExerciseItem } from "@/features/sessions/components/SessionExerciseItem";
+import { AddSetModal } from "@/features/sessions/components/AddSetModal";
+import { setSchema } from "@/features/sessions/schemas/sessionFormSchema";
 import type { SessionDetailViewProps } from "@/features/sessions/types";
 
 export function SessionDetailView({
@@ -34,6 +37,9 @@ export function SessionDetailView({
   const [exerciseModalOpen, setExerciseModalOpen] = useState(false);
   const [editingExercise, setEditingExercise] =
     useState<SessionExerciseData | null>(null);
+  const [addSetModalOpen, setAddSetModalOpen] = useState(false);
+  const [addSetExerciseId, setAddSetExerciseId] = useState<string | null>(null);
+  const [editSetErrors, setEditSetErrors] = useState<SetFieldErrors[]>([]);
 
   const exerciseGroups = Object.values(setsByExercise);
   const exerciseIds = exerciseGroups.map(({ exercise }) => exercise.id);
@@ -59,7 +65,28 @@ export function SessionDetailView({
         weightKg: set.weightKg != null ? String(set.weightKg) : "",
       })),
     });
+    setEditSetErrors([]);
     setExerciseModalOpen(true);
+  }
+
+  function openAddSetModal(exerciseId: string) {
+    setAddSetExerciseId(exerciseId);
+    setAddSetModalOpen(true);
+  }
+
+  function handleAddSetConfirm(reps: number | null, weightKg: number | null) {
+    if (!addSetExerciseId) return;
+    const group = setsByExercise[addSetExerciseId];
+    if (!group) return;
+    startTransition(async () => {
+      await updateSessionExercise(session.id, addSetExerciseId, [
+        ...group.sets.map((set) => ({ reps: set.reps, weightKg: set.weightKg })),
+        { reps, weightKg },
+      ]);
+      setAddSetModalOpen(false);
+      setAddSetExerciseId(null);
+      router.refresh();
+    });
   }
 
   function handleExerciseSetChange(
@@ -94,6 +121,23 @@ export function SessionDetailView({
 
   function handleExerciseSave() {
     if (!editingExercise) return;
+
+    const errors: SetFieldErrors[] = editingExercise.sets.map((set) => {
+      const result = setSchema.safeParse(set);
+      if (result.success) return {};
+      return {
+        reps: result.error.issues.find((i) => i.path[0] === "reps")?.message,
+        weightKg: result.error.issues.find((i) => i.path[0] === "weightKg")?.message,
+      };
+    });
+
+    const hasErrors = errors.some((e) => e.reps || e.weightKg);
+    if (hasErrors) {
+      setEditSetErrors(errors);
+      return;
+    }
+
+    setEditSetErrors([]);
     startTransition(async () => {
       await updateSessionExercise(
         session.id,
@@ -161,6 +205,7 @@ export function SessionDetailView({
             exercise={exercise}
             sets={sets}
             onEdit={() => openExerciseModal(exercise.id)}
+            onAddSet={() => openAddSetModal(exercise.id)}
           />
         ))}
       </div>
@@ -179,6 +224,7 @@ export function SessionDetailView({
                 onAddSet={handleExerciseAddSet}
                 onRemoveSet={handleExerciseRemoveSet}
                 currentSessionId={session.id}
+                setErrors={editSetErrors}
               />
               <Button
                 className="w-full"
@@ -191,6 +237,18 @@ export function SessionDetailView({
           )}
         </DialogContent>
       </Dialog>
+
+      <AddSetModal
+        open={addSetModalOpen}
+        onOpenChange={setAddSetModalOpen}
+        exerciseName={
+          addSetExerciseId
+            ? (setsByExercise[addSetExerciseId]?.exercise.nameFr ?? "")
+            : ""
+        }
+        isPending={isPending}
+        onConfirm={handleAddSetConfirm}
+      />
     </div>
   );
 }
