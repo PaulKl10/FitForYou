@@ -68,7 +68,7 @@ export function AddSetModal({
           <DialogTitle>Ajouter une série</DialogTitle>
         </DialogHeader>
 
-        <p className="text-sm font-medium text-muted-foreground truncate mb-2">
+        <p className="text-sm font-medium text-muted-foreground mb-2">
           {exerciseName}
         </p>
 

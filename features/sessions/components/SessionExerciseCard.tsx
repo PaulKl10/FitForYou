@@ -82,25 +82,36 @@ export function SessionExerciseCard({
   return (
     <div className="rounded-xl border border-border/60 bg-card">
       {/* Header */}
-      <div className="flex items-center justify-between flex-1 gap-2 px-3 py-3 border-b border-border/60 bg-muted/30">
+      <div className="flex min-w-0 items-center justify-between gap-2 px-3 py-3 border-b border-border/60 bg-muted/30">
         {dragHandle}
-        <div className="flex items-center justify-center size-7 rounded-md bg-primary/10 shrink-0">
-          <Dumbbell className="size-3.5 text-primary" />
+        <div className="flex min-w-0 flex-1 gap-2 items-center">
+          <div className="flex items-center justify-center size-7 rounded-md bg-primary/10 shrink-0">
+            <Dumbbell className="size-3.5 text-primary" />
+          </div>
+          <div className="flex min-w-0 flex-1 flex-col gap-2 items-stretch overflow-hidden md:flex-row md:items-center">
+            <p className="min-w-0 font-semibold text-sm truncate md:flex-1">
+              {exercise.nameFr}
+            </p>
+            <div className="flex shrink-0 flex-wrap gap-2">
+              {exercise.targetMuscle && (
+                <Badge
+                  variant="default"
+                  className="text-xs border-border/60 shrink-0"
+                >
+                  {exercise.targetMuscle}
+                </Badge>
+              )}
+              {exercise.equipment && (
+                <Badge
+                  variant="outline"
+                  className="text-xs border-border/60 shrink-0"
+                >
+                  {exercise.equipment}
+                </Badge>
+              )}
+            </div>
+          </div>
         </div>
-        <div className="flex-1 min-w-0">
-          <p className="font-semibold text-sm truncate">{exercise.nameFr}</p>
-          <p className="text-xs text-muted-foreground">
-            {exercise.targetMuscle}
-          </p>
-        </div>
-        {exercise.equipment && (
-          <Badge
-            variant="default"
-            className="text-xs border-border/60 shrink-0"
-          >
-            {exercise.equipment}
-          </Badge>
-        )}
         <Button
           type="button"
           variant="ghost"

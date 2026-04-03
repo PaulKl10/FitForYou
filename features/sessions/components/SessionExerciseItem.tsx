@@ -31,22 +31,24 @@ export function SessionExerciseItem({
             >
               {exercise.nameFr}
             </Link>
-            {exercise.targetMuscle && (
-              <Badge
-                variant="default"
-                className="max-w-24 truncate text-xs border-border/60 shrink-0 md:ml-auto"
-              >
-                {exercise.targetMuscle}
-              </Badge>
-            )}
-            {exercise.equipment && (
-              <Badge
-                variant="outline"
-                className="max-w-24 truncate text-xs border-border/60 shrink-0 md:ml-auto"
-              >
-                {exercise.equipment}
-              </Badge>
-            )}
+            <div className="flex gap-2">
+              {exercise.targetMuscle && (
+                <Badge
+                  variant="default"
+                  className="truncate text-xs border-border/60 shrink-0 md:ml-auto"
+                >
+                  {exercise.targetMuscle}
+                </Badge>
+              )}
+              {exercise.equipment && (
+                <Badge
+                  variant="outline"
+                  className="truncate text-xs border-border/60 shrink-0 md:ml-auto"
+                >
+                  {exercise.equipment}
+                </Badge>
+              )}
+            </div>
           </div>
         </div>
         <div className="flex items-center gap-2">
