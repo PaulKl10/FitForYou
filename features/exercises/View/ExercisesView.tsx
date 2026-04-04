@@ -46,7 +46,7 @@ export function ExercisesView({
           </p>
         </div>
       ) : (
-        <div className="grid gap-4 grid-cols-2 md:grid-cols-3 lg:grid-cols-8">
+        <div className="grid gap-4 grid-cols-2 md:grid-cols-3 lg:grid-cols-5">
           {exercises.map((exercise) => (
             <ExerciseCard
               key={exercise.id}

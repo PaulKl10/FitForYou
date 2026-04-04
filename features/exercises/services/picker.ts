@@ -1,6 +1,6 @@
 "use server";
 
-import { createClient } from "@/lib/supabase/server";
+import { getOptionalUser } from "@/lib/auth/server";
 import {
   getExerciseFilterOptions,
   getExercisePage,
@@ -8,10 +8,7 @@ import {
 } from "@/features/exercises/repositories/exercise.repository";
 
 export async function getPickerInitialData() {
-  const supabase = await createClient();
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
+  const user = await getOptionalUser();
 
   const [filterOptions, favoriteIds] = await Promise.all([
     getExerciseFilterOptions(),

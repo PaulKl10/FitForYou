@@ -1,5 +1,5 @@
-import { notFound, redirect } from "next/navigation";
-import { createClient } from "@/lib/supabase/server";
+import { notFound } from "next/navigation";
+import { requireUser } from "@/lib/auth/server";
 import { getSessionById } from "@/features/sessions/repositories/session.repository";
 import { SessionDetailView } from "@/features/sessions/View/SessionDetailView";
 import type { ExerciseGroup } from "@/features/sessions/types";
@@ -9,11 +9,7 @@ interface SessionDetailScreenProps {
 }
 
 export async function SessionDetailScreen({ id }: SessionDetailScreenProps) {
-  const supabase = await createClient();
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
-  if (!user) redirect("/login");
+  const user = await requireUser();
 
   const session = await getSessionById(id, user.id);
   if (!session) notFound();

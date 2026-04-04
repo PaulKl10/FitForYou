@@ -1,7 +1,6 @@
 "use server";
 
-import { redirect } from "next/navigation";
-import { createClient } from "@/lib/supabase/server";
+import { requireUser } from "@/lib/auth/server";
 import { prisma } from "@/lib/prisma";
 
 export interface ExerciseHistorySet {
@@ -20,11 +19,7 @@ export async function getExerciseLastHistory(
   exerciseId: string,
   excludeSessionId?: string,
 ): Promise<ExerciseHistory | null> {
-  const supabase = await createClient();
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
-  if (!user) redirect("/login");
+  const user = await requireUser();
 
   const session = await prisma.session.findFirst({
     where: {

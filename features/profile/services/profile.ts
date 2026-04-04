@@ -2,9 +2,8 @@
 
 import { updateTag } from "next/cache";
 import { z } from "zod";
-import { createClient } from "@/lib/supabase/server";
 import { prisma } from "@/lib/prisma";
-import { redirect } from "next/navigation";
+import { requireUser } from "@/lib/auth/server";
 import { AVATAR_OPTIONS } from "@/lib/avatars";
 
 const VALID_AVATAR_URLS = new Set(AVATAR_OPTIONS.map((a) => a.url));
@@ -20,11 +19,7 @@ const UpdateProfileSchema = z.object({
 });
 
 export async function updateProfile(formData: FormData) {
-  const supabase = await createClient();
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
-  if (!user) redirect("/login");
+  const user = await requireUser();
 
   const rawWeight = formData.get("weight");
   const rawHeight = formData.get("height");

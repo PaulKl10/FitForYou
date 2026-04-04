@@ -2,7 +2,7 @@
 
 import { redirect } from "next/navigation";
 import { updateTag } from "next/cache";
-import { createClient } from "@/lib/supabase/server";
+import { requireUser } from "@/lib/auth/server";
 import { prisma } from "@/lib/prisma";
 
 interface SetInput {
@@ -24,11 +24,7 @@ interface SessionInput {
 }
 
 export async function createSession(input: SessionInput) {
-  const supabase = await createClient();
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
-  if (!user) redirect("/login");
+  const user = await requireUser();
 
   const session = await prisma.$transaction(async (tx) => {
     const created = await tx.session.create({
@@ -64,11 +60,7 @@ export async function createSession(input: SessionInput) {
 }
 
 export async function updateSession(sessionId: string, input: SessionInput) {
-  const supabase = await createClient();
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
-  if (!user) redirect("/login");
+  const user = await requireUser();
 
   await prisma.$transaction(async (tx) => {
     // Verify ownership
@@ -114,11 +106,7 @@ export async function updateSession(sessionId: string, input: SessionInput) {
 }
 
 export async function duplicateSession(sessionId: string, newDate: string) {
-  const supabase = await createClient();
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
-  if (!user) redirect("/login");
+  const user = await requireUser();
 
   const original = await prisma.session.findUnique({
     where: { id: sessionId, userId: user.id },
@@ -180,11 +168,7 @@ export async function updateSessionInfo(
     notes?: string | null;
   },
 ) {
-  const supabase = await createClient();
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
-  if (!user) redirect("/login");
+  const user = await requireUser();
 
   const existing = await prisma.session.findUnique({
     where: { id: sessionId, userId: user.id },
@@ -215,11 +199,7 @@ export async function updateSet(
     weightKg?: number | null;
   },
 ) {
-  const supabase = await createClient();
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
-  if (!user) redirect("/login");
+  const user = await requireUser();
 
   const set = await prisma.set.findUnique({
     where: { id: setId },
@@ -242,11 +222,7 @@ export async function updateSessionExercise(
   exerciseId: string,
   sets: { reps?: number | null; weightKg?: number | null }[],
 ) {
-  const supabase = await createClient();
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
-  if (!user) redirect("/login");
+  const user = await requireUser();
 
   const existing = await prisma.session.findUnique({
     where: { id: sessionId, userId: user.id },
@@ -275,11 +251,7 @@ export async function updateSessionExercise(
 }
 
 export async function addExercisesToSession(sessionId: string, exerciseIds: string[]) {
-  const supabase = await createClient();
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
-  if (!user) redirect("/login");
+  const user = await requireUser();
 
   const existing = await prisma.session.findUnique({
     where: { id: sessionId, userId: user.id },
@@ -313,11 +285,7 @@ export async function addExercisesToSession(sessionId: string, exerciseIds: stri
 }
 
 export async function removeExerciseFromSession(sessionId: string, exerciseId: string) {
-  const supabase = await createClient();
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
-  if (!user) redirect("/login");
+  const user = await requireUser();
 
   const existing = await prisma.session.findUnique({
     where: { id: sessionId, userId: user.id },
@@ -333,11 +301,7 @@ export async function removeExerciseFromSession(sessionId: string, exerciseId: s
 }
 
 export async function deleteSession(sessionId: string) {
-  const supabase = await createClient();
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
-  if (!user) redirect("/login");
+  const user = await requireUser();
 
   const existing = await prisma.session.findUnique({
     where: { id: sessionId, userId: user.id },

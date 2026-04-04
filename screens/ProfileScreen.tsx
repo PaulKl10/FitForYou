@@ -1,14 +1,10 @@
 import { redirect } from "next/navigation";
-import { createClient } from "@/lib/supabase/server";
+import { requireUser } from "@/lib/auth/server";
 import { getProfile, getWeightHistory } from "@/features/profile/repositories/profile.repository";
 import { ProfileView } from "@/features/profile/View/ProfileView";
 
 export async function ProfileScreen() {
-  const supabase = await createClient();
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
-  if (!user) redirect("/login");
+  const user = await requireUser();
 
   const profile = await getProfile(user.id);
   if (!profile) redirect("/login");

@@ -1,4 +1,4 @@
-import { createClient } from "@/lib/supabase/server";
+import { requireUser } from "@/lib/auth/server";
 import {
   getExercisePage,
   getExerciseFilterOptions,
@@ -17,12 +17,9 @@ interface ExercisesScreenProps {
 }
 
 export async function ExercisesScreen({ filters }: ExercisesScreenProps) {
-  const supabase = await createClient();
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
+  const user = await requireUser();
 
-  const favoriteIds = user ? await getFavoriteIds(user.id) : [];
+  const favoriteIds = await getFavoriteIds(user.id);
 
   const [{ exercises, totalExercises, totalPages, currentPage }, { muscles, equipments }] =
     await Promise.all([

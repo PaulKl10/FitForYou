@@ -2,15 +2,11 @@
 
 import { updateTag } from "next/cache";
 import { redirect } from "next/navigation";
-import { createClient } from "@/lib/supabase/server";
 import { prisma } from "@/lib/prisma";
+import { requireUser } from "@/lib/auth/server";
 
 export async function toggleFavorite(exerciseId: string) {
-  const supabase = await createClient();
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
-  if (!user) redirect("/login");
+  const user = await requireUser();
 
   const profile = await prisma.profile.findUnique({
     where: { userId: user.id },

@@ -1,5 +1,4 @@
-import { redirect } from "next/navigation";
-import { createClient } from "@/lib/supabase/server";
+import { requireUser } from "@/lib/auth/server";
 import { getSessionsByUser } from "@/features/sessions/repositories/session.repository";
 import { SessionsView } from "@/features/sessions/View/SessionsView";
 
@@ -8,11 +7,7 @@ interface SessionsScreenProps {
 }
 
 export async function SessionsScreen({ page }: SessionsScreenProps) {
-  const supabase = await createClient();
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
-  if (!user) redirect("/login");
+  const user = await requireUser();
 
   const { sessions, total, totalPages } = await getSessionsByUser(user.id, page);
 

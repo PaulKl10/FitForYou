@@ -2,6 +2,11 @@ import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
   allowedDevOrigins: ['192.168.1.96'],
+  experimental: {
+    staleTimes: {
+      dynamic: 300,
+    },
+  },
   images: {
     remotePatterns: [
       {

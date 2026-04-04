@@ -1,5 +1,5 @@
-import { notFound, redirect } from "next/navigation";
-import { createClient } from "@/lib/supabase/server";
+import { notFound } from "next/navigation";
+import { requireUser } from "@/lib/auth/server";
 import {
   getExerciseById,
   getExerciseProgress,
@@ -12,11 +12,7 @@ interface ExerciseDetailScreenProps {
 }
 
 export async function ExerciseDetailScreen({ id }: ExerciseDetailScreenProps) {
-  const supabase = await createClient();
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
-  if (!user) redirect("/login");
+  const user = await requireUser();
 
   const [exercise, favoriteIds, progress] = await Promise.all([
     getExerciseById(id),
