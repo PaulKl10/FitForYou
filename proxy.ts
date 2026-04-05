@@ -7,6 +7,10 @@ export async function proxy(request: NextRequest) {
 
 export const config = {
   matcher: [
-    "/((?!_next/static|_next/image|favicon.ico|.*\\.(?:svg|png|jpg|jpeg|gif|webp)$).*)",
+    /*
+     * Laisser passer manifeste PWA, SW et robots sans session — sinon Chrome reçoit
+     * une redirection HTML (/login) et n’affiche pas les icônes « Ajouter à l’écran ».
+     */
+    "/((?!_next/static|_next/image|favicon.ico|manifest\\.webmanifest|robots\\.txt|sw\\.js|.*\\.(?:svg|png|jpg|jpeg|gif|webp|ico)$).*)",
   ],
 };
